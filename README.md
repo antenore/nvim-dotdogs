@@ -1,14 +1,15 @@
 # Neovim config
 
-![](./data/images/Neovim_Alpha_Dashboard.png)
-![](./data/images/Neovim-WIP.png)
-
 * 99.99% Lua
 * Neovim HEAD
 * zenbones theme (tokyobones)
 * LSP, Treesitter, CMP, Neogit, lualine, nvim-tree, nvim-surround
 * Mainly configured for C, Lua, Markdown and Latex editing
 * See the plugin list at the end
+* mdview is a terminal-only Markdown preview plugin I wrote myself.
+
+![](./data/images/Neovim_Alpha_Dashboard.png)
+![](./data/images/Neovim-WIP.png)
 
 ## Dependencies
 
