@@ -1,11 +1,11 @@
---
---  ███╗   ██╗  | My init.lua file.
---  ████╗  ██║  | You can use it at your own risk, before to ask question RTFM.
+--  ============================================================================
+--  ███╗   ██╗  | My Neovim dot(dogs)files
+--  ████╗  ██║  | Use it at your own risk, before to ask questions, RTFM.
 --  ██╔██╗ ██║  | To quit this file type :q
---  ██║╚██╗██║  | WTFPL (The Do What The Fuck You Want To Public License)
---  ██║ ╚████║  | Antenore (tmow) Gatta - WTFPL License
+--  ██║╚██╗██║  | License: Apache 2.0
+--  ██║ ╚████║  | Copyleft Antenore (tmow) Gatta 2022 — ∞
 --  ╚═╝  ╚═══╝  | - https://antenore.simbiosi.org
---
+--   ૮ ⚆ﻌ⚆ა     | - Partly based from https://github.com/ttys3/nvim-config.git
 --  ===== Before everything else ===============================================
 vim.g.did_load_filetypes = 1 -- No default filetype.vim (nathom/filetype.nvim)
 vim.g.mapleader = ','

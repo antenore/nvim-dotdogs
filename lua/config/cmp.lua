@@ -3,16 +3,6 @@
 
 vim.o.completeopt = "menu,menuone,noselect"
 
--- Tabnine config
--- local tabnine = require('cmp_tabnine.config')
--- tabnine:setup({
---         max_lines = 3000;
---         max_num_results = 5;
---         sort = true;
---         run_on_every_keystroke = true;
---         snippet_placeholder = '..';
--- })
-
 local M = {}
 
 function M.setup()
@@ -31,7 +21,7 @@ function M.setup()
 		tags          = '[Tags]',
 		nvim_lua      = '[Lua]',
 		latex_symbols = '[Latex]',
-		-- cmdline       = '[Cmd]',
+		cmdline       = '[Cmd]',
 		luasnip       = '[Snip]',
 		emoji         = '[Emoji]',
 		zsh           = '[Zsh]',
