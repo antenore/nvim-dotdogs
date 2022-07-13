@@ -15,7 +15,7 @@
 
 ### neovim >= 0.7
 
-* https://github.com/neovim/neovim.git
+* [Neovim Git repository](https://github.com/neovim/neovim.git)
 
 ```
 cmake -DCMAKE_INSTALL_PREFIX=$HOME/neovim -DCMAKE_BUILD_TYPE=RelWithDebInfo -G 'Ninja' -B build/
