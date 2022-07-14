@@ -257,15 +257,11 @@ require('packer').startup(function()
 		'jbyuki/venn.nvim',
 		config = [[require('config.venn')]],
 	})
-	use {
+	use ({
 		'goolord/alpha-nvim',
 		requires = { 'kyazdani42/nvim-web-devicons' },
-		config = function ()
-			require'alpha'.setup(require'alpha.themes.startify'.config)
-			-- require'alpha'.setup(require'alpha.themes.dashboard'.config)
-			-- require'alpha'.setup(require'alpha.themes.theta'.config)
-		end
-	}
+		config = [[require('config.alpha')]],
+	})
 	-- Automatically set up your configuration after cloning packer.nvim
 	if PACKER_BOOTSTRAP then
 		require("packer").sync()
