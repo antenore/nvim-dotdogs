@@ -4,7 +4,7 @@
 * Neovim HEAD
 * zenbones theme (tokyobones)
 * LSP, Treesitter, CMP, Neogit, lualine, nvim-tree, nvim-surround
-* Mainly configured for C, Lua, Markdown and Latex editing
+* Mainly configured for C, Lua, Markdown and LaTeX editing
 * See the plugin list at the end
 * mdview is a terminal-only Markdown preview plugin I wrote myself.
 
