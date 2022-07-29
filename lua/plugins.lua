@@ -230,9 +230,8 @@ require('packer').startup(function()
 	use ({ 'tmux-plugins/vim-tmux' })
 	use ({ 'ryanoasis/vim-devicons' })
 	use ({ 'PProvost/vim-ps1' })
-	-- use ({ 'https://gitlab.com/antenore/Luciano.git' })
-	use ({ '/home/antenore/software/myvim/plugins/mdview.nvim' })
-	-- use ({ '/home/antenore/software/myvim/plugins/jaflpl.nvim' })
+	use ({ vim.fn.expand("$HOME/software/myvim/plugins/mdview.nvim") })
+	-- use ({ vim.fn.expand("$HOME/software/myvim/plugins/jaflpl.nvim") })
 	use ({
 		'mcchrish/zenbones.nvim',
 		requires = { 'rktjmp/lush.nvim', opt = true },

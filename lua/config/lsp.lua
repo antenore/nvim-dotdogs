@@ -100,7 +100,7 @@ lspconfig.sumneko_lua.setup{
 lspconfig.prosemd_lsp.setup{
   on_attach = on_attach,
   capabilities = capabilities,
-    cmd = { "/home/antenore/.cargo/bin/prosemd-lsp", "--stdio" },
+    cmd = { vim.fn.expand("$HOME/.cargo/bin/prosemd-lsp"), "--stdio" },
     filetypes = { "markdown" },
     root_dir = function(fname)
       return util.find_git_ancestor(fname) or vim.fn.getcwd()
@@ -112,7 +112,7 @@ lspconfig.puppet.setup {
   on_attach = on_attach,
   capabilities = capabilities,
   -- DEBUG add '--stdio', '--debug=/tmp/puppet-lsp-debug.log'
-  cmd = { '/home/antenore/software/puppet-editor-services/puppet-languageserver', '--stdio' },
+  cmd = { vim.fn.expand("$HOME/software/puppet-editor-services/puppet-languageserver"), '--stdio' },
   filetypes = { 'puppet' },
   root_dir = function(fname)
     local root_files = {

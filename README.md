@@ -2,7 +2,7 @@
 
 * 99.99% Lua
 * Neovim HEAD
-* zenbones theme (tokyobones)
+* zenbones theme (tokyobones, see data/Xcolors for a matching terminal theme)
 * LSP, Treesitter, CMP, Neogit, lualine, nvim-tree, nvim-surround
 * Mainly configured for C, Lua, Markdown and LaTeX editing
 * See the plugin list at the end
