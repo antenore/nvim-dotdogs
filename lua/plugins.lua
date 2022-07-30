@@ -254,7 +254,7 @@ require('packer').startup(function()
 			vim.fn.expand("$HOME/software/myvim/plugins/mdview.nvim"),
 		})
 	end
-	-- if isdir(vim.fn.expand("$HOME/software/myvim/plugins/jaf.nvim")) then
+	-- if isdir(vim.fn.expand("$HOME/software/myvim/plugins/jaflpl.nvim")) then
 	--   use ({ vim.fn.expand("$HOME/software/myvim/plugins/jaflpl.nvim") })
 	-- end
 	use ({
