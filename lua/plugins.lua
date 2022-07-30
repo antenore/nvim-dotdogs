@@ -2,6 +2,25 @@ require "utils"
 
 local fn = vim.fn
 
+--- Check if a file or directory exists in this path
+local function exists(file)
+   local ok, err, code = os.rename(file, file)
+   if not ok then
+      if code == 13 then
+         -- Permission denied, but it exists
+         return true
+      end
+   end
+   return ok, err
+end
+
+--- Check if a directory exists in this path
+local function isdir(path)
+   -- "/" works on both Unix and Windows
+   return exists(path.."/")
+end
+
+
 -- Automatically install packer
 local install_path = fn.stdpath 'data' .. '/site/pack/packer/start/packer.nvim'
 if fn.empty(fn.glob(install_path)) > 0 then
@@ -114,7 +133,7 @@ require('packer').startup(function()
 	use ({
 		'junegunn/fzf',
 		dir = '~/.fzf',
-		run = { './install               -- all' },
+		run = { './install --all' },
 	})
 	use ({
 		'junegunn/fzf.vim',
@@ -230,8 +249,14 @@ require('packer').startup(function()
 	use ({ 'tmux-plugins/vim-tmux' })
 	use ({ 'ryanoasis/vim-devicons' })
 	use ({ 'PProvost/vim-ps1' })
-	use ({ vim.fn.expand("$HOME/software/myvim/plugins/mdview.nvim") })
-	-- use ({ vim.fn.expand("$HOME/software/myvim/plugins/jaflpl.nvim") })
+	if isdir(vim.fn.expand("$HOME/software/myvim/plugins/mdview.nvim")) then
+		use ({
+			vim.fn.expand("$HOME/software/myvim/plugins/mdview.nvim"),
+		})
+	end
+	-- if isdir(vim.fn.expand("$HOME/software/myvim/plugins/jaf.nvim")) then
+	--   use ({ vim.fn.expand("$HOME/software/myvim/plugins/jaflpl.nvim") })
+	-- end
 	use ({
 		'mcchrish/zenbones.nvim',
 		requires = { 'rktjmp/lush.nvim', opt = true },
@@ -243,7 +268,6 @@ require('packer').startup(function()
 						vim.cmd('colorscheme tokyobones')
 		]]
 	})
-
 	-- iusei ({ 'ewilazarus/preto' })
 	-- use ({
 	-- 	'luochen1990/rainbow',
