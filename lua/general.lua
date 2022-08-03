@@ -61,7 +61,8 @@ Option.g {
 	timeoutlen     = 300,                    -- mapping timeout
 	ttimeoutlen    = 50,                     -- keycode timeout
 
-	-- mouse       = "a", -- "enable mouse
+	-- mouse       = "a",                    -- enable mouse, by default nvi (normal, visual, insert)
+	mouse          = "",                     -- Mouse disabled as recently has been enabled by default
 	history        = 1000,                   -- number of command lines to remember
 	ttyfast        = true,                   -- assume fast terminal connection
 	viewoptions    = "folds,options,cursor", -- unix and slash are deprecated, do not use
