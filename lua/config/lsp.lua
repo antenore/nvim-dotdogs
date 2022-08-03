@@ -3,17 +3,43 @@ local util = require 'lspconfig/util'
 -- {{{ ===== lsp-colors.nvim ====================================================
 require("lsp-colors").setup({})
 -- }}}
--- {{{ ===== nvim-lsp-installer =================================================
-require("nvim-lsp-installer").setup({
-    automatic_installation = true,
-    ui = {
-        icons = {
-            server_installed = "✓",
-            server_pending = "➜",
-            server_uninstalled = "✗",
-        }
-    }
-})
+-- -- {{{ ===== nvim-lsp-installer =================================================
+-- require("nvim-lsp-installer").setup({
+--     automatic_installation = true,
+--     ui = {
+--         icons = {
+--             server_installed = "✓",
+--             server_pending = "➜",
+--             server_uninstalled = "✗",
+--         }
+--     }
+-- })
+
+require("mason").setup {
+	ui = {
+		icons = {
+			package_installed = "✓",
+			package_pending = "➜",
+			package_uninstalled = "✗",
+		}
+	}
+}
+require("mason-lspconfig").setup {
+	ensure_installed = {
+		'sumneko_lua',
+		'cmake',
+		'jsonls',
+		'solargraph',
+		'eslint',
+		'tsserver',
+		'vimls',
+		'bashls',
+		'marksman',
+		'prosemd_lsp',
+		'puppet',
+	},
+	automatic_installation = true,
+}
 
 -- Mappings.
 -- See `:help vim.diagnostic.*` for documentation on any of the below functions
