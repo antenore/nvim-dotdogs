@@ -2,7 +2,8 @@
 
 * 99.99% Lua
 * Neovim HEAD
-* zenbones theme (tokyobones, see data/Xcolors for a matching terminal theme)
+* [mcchrish/zenbones.nvim:](https://github.com/mcchrish/zenbones.nvim) (tokyobones, see data/Xcolors for a matching terminal theme)
+* [williamboman/mason.nvim: Portable package manager for Neovim](https://github.com/williamboman/mason.nvim)
 * LSP, Treesitter, CMP, Neogit, lualine, nvim-tree, nvim-surround
 * Mainly configured for C, Lua, Markdown and LaTeX editing
 * See the plugin list at the end
@@ -84,69 +85,67 @@ sudo npm i -g bash-language-server
 ```
 ## Installed plugins
 
- * LuaSnip
- * alpha-nvim
- * clangd_extensions.nvim
- * cmp-buffer
- * cmp-calc
- * cmp-cmdline
- * cmp-emoji
- * cmp-look
- * cmp-nvim-lsp
- * cmp-nvim-lsp-signature-help
- * cmp-nvim-lua
- * cmp-nvim-tags
- * cmp-path
- * cmp-spell
- * cmp-treesitter
- * cmp_luasnip
- * csv.vim
- * diffview.nvim
- * filetype.nvim
- * friendly-snippets
- * fzf
- * fzf.vim
- * gitsigns.nvim
- * impatient.nvim
- * indent-guides.nvim
- * lsp-colors.nvim
- * lsp_extensions.nvim
- * lsp_signature.nvim
- * lualine.nvim
- * lush.nvim
- * mdview.nvim
- * neogit
- * neomake (not loaded)
- * nlsp-settings.nvim
- * null-ls.nvim
- * nvim-autopairs
- * nvim-cmp
- * nvim-colorizer.lua
- * nvim-lsp-installer
- * nvim-lspconfig
- * nvim-markdown
- * nvim-surround
- * nvim-tree.lua
- * nvim-treesitter
- * nvim-ts-rainbow
- * nvim-web-devicons
- * packer.nvim
- * plenary.nvim
- * popup.nvim
- * puppet-syntax-vim
- * telescope-fzf-native.nvim
- * telescope-symbols.nvim
- * telescope-ui-select.nvim
- * telescope.nvim
- * venn.nvim
- * vim-devicons
- * vim-easy-align
- * vim-gutentags
- * vim-ps1
- * vim-puppet
- * vim-tmux
- * vimtex
- * vista.vim
- * yaml.nvim
- * zenbones.nvim
-
+* alpha-nvim
+* clangd_extensions.nvim
+* cmp-buffer
+* cmp-calc
+* cmp-cmdline
+* cmp-emoji
+* cmp-look
+* cmp_luasnip
+* cmp-nvim-lsp
+* cmp-nvim-lsp-signature-help
+* cmp-nvim-lua
+* cmp-nvim-tags
+* cmp-path
+* cmp-spell
+* cmp-treesitter
+* csv.vim
+* diffview.nvim
+* filetype.nvim
+* friendly-snippets
+* fzf
+* fzf.vim
+* gitsigns.nvim
+* impatient.nvim
+* indent-blankline.nvim
+* lsp-colors.nvim
+* lsp_extensions.nvim
+* lsp_signature.nvim
+* lualine.nvim
+* LuaSnip
+* lush.nvim
+* mason-lspconfig.nvim
+* mason.nvim
+* mdview.nvim
+* neogit
+* nlsp-settings.nvim
+* null-ls.nvim
+* nvim-autopairs
+* nvim-cmp
+* nvim-colorizer.lua
+* nvim-lspconfig
+* nvim-markdown
+* nvim-tree.lua
+* nvim-treesitter
+* nvim-ts-rainbow
+* nvim-web-devicons
+* packer.nvim
+* plenary.nvim
+* popup.nvim
+* puppet-syntax-vim
+* telescope-fzf-native.nvim
+* telescope.nvim
+* telescope-symbols.nvim
+* telescope-ui-select.nvim
+* venn.nvim
+* vim-devicons
+* vim-easy-align
+* vim-gutentags
+* vim-ps1
+* vim-puppet
+* vimtex
+* vim-tmux
+* vista.vim
+* yaml.nvim
+* zenbones.nvim
