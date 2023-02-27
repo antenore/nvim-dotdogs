@@ -62,7 +62,20 @@ local use = require('packer').use
 require('packer').startup(function()
 	use ({ 'wbthomason/packer.nvim' }) -- Have packer manage itself
 	use ({ 'lewis6991/impatient.nvim' })
-	use ({ 'nathom/filetype.nvim' })   -- filetype.nvim - Easily speed up your neovim startup time!
+	use ({
+		"nathom/filetype.nvim",
+		config = function()
+			require("filetype").setup {
+				overrides = {
+					extensions = {
+						tf = "terraform",
+						tfvars = "terraform",
+						tfstate = "json",
+					},
+				},
+			}
+		end,
+	})
 	use ({ 'nvim-lua/popup.nvim' })    -- An implementation of the Popup API from vim in Neovim
 	use ({ 'nvim-lua/plenary.nvim' })  -- Useful lua functions used by lots of plugins
 	use ({ 'windwp/nvim-autopairs' })  -- Autopairs, integrates with both cmp and treesitter
@@ -83,6 +96,10 @@ require('packer').startup(function()
 		run = ':TSUpdate',
 		config = [[require('config.treesitter')]],
 	})
+	use ({
+		'jose-elias-alvarez/null-ls.nvim',
+		config = [[require('config.null-ls')]],
+	})
 	-- LSP
 	use ({
 		'neovim/nvim-lspconfig',
@@ -91,7 +108,6 @@ require('packer').startup(function()
 			'williamboman/mason.nvim',
 			'williamboman/mason-lspconfig.nvim',
 			'tamago324/nlsp-settings.nvim',
-			'jose-elias-alvarez/null-ls.nvim',
 			'folke/lsp-colors.nvim',
 			'nvim-lua/lsp_extensions.nvim',
 		},
@@ -132,24 +148,22 @@ require('packer').startup(function()
 	use ({ 'cuducos/yaml.nvim' })
 
 	-- FZF setup
-	use ({
-		'junegunn/fzf',
-		dir = '~/.fzf',
-		run = { './install --all' },
-	})
-	use ({
-		'junegunn/fzf.vim',
-		-- Adding the config here and not requiring at the end, break telescope-ui-select
-		config = [[require('config.fzf')]],
-	})
+	-- use ({
+		-- 'junegunn/fzf',
+		-- dir = '~/.fzf',
+		-- run = { './install --all' },
+	-- })
+	-- use ({
+		-- 'junegunn/fzf.vim',
+		-- -- Adding the config here and not requiring at the end, break telescope-ui-select
+		-- config = [[require('config.fzf')]],
+	-- })
 
 	-- Telescope https://github.com/nvim-telescope/telescope.nvim
-	use ({'nvim-telescope/telescope-fzf-native.nvim', run = 'make' })
 	use ({
 		'nvim-telescope/telescope.nvim',
 		requires = {
 			{'nvim-lua/plenary.nvim'},
-			{'nvim-telescope/telescope-fzf-native.nvim', run = 'make' }
 		},
 		config = [[require('config.telescope')]],
 	})
@@ -191,8 +205,6 @@ require('packer').startup(function()
 		config = [[require('config.nvim-markdown').setup()]],
 	})
 
-	use ({ 'rodjek/vim-puppet' })
-	use ({ 'puppetlabs/puppet-syntax-vim' })
 	use ({
 		'kyazdani42/nvim-tree.lua',
 		requires = { 'kyazdani42/nvim-web-devicons' },
@@ -287,12 +299,23 @@ require('packer').startup(function()
 		requires = { 'kyazdani42/nvim-web-devicons' },
 		config = [[require('config.alpha')]],
 	})
+
+	-- terraform
+	use ({'hashivim/vim-terraform' })
+	-- Puppet requirements
+	use ({'editorconfig/editorconfig-vim' }) -- For filetype management.
+	use ({'elzr/vim-json' })
+	use ({'mrk21/yaml-vim' })
+	use ({'vim-ruby/vim-ruby' })
+	use ({'rodjek/vim-puppet' })
+	use ({ 'puppetlabs/puppet-syntax-vim' })
+
 	-- Automatically set up your configuration after cloning packer.nvim
 	if PACKER_BOOTSTRAP then
 		require("packer").sync()
 	end
 end)
 
-require('config.fzf')
+-- require('config.fzf')
 require('config.neomake')
 require('config.vimtex')

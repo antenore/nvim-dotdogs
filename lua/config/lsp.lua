@@ -1,4 +1,5 @@
 require "utils"
+
 local util = require 'lspconfig/util'
 -- {{{ ===== lsp-colors.nvim ====================================================
 require("lsp-colors").setup({})
@@ -26,7 +27,7 @@ require("mason").setup {
 }
 require("mason-lspconfig").setup {
 	ensure_installed = {
-		'sumneko_lua',
+		'lua_ls',
 		'cmake',
 		'jsonls',
 		'solargraph',
@@ -36,7 +37,10 @@ require("mason-lspconfig").setup {
 		'bashls',
 		'marksman',
 		'prosemd_lsp',
-		'puppet',
+		-- 'puppet',
+		'terraformls',
+		'yamlls',
+		'html',
 	},
 	automatic_installation = true,
 }
@@ -73,7 +77,7 @@ local on_attach = function(_, bufnr)
 	nnoremap { '<leader>f','<cmd>lua vim.lsp.buf.formatting()<CR>',bufopt }
 end
 
-local capabilities = require('cmp_nvim_lsp').update_capabilities(vim.lsp.protocol.make_client_capabilities())
+local capabilities = require('cmp_nvim_lsp').default_capabilities(vim.lsp.protocol.make_client_capabilities())
 
 local lspconfig = require('lspconfig')
 
@@ -96,24 +100,26 @@ require("clangd_extensions").setup{
 }
 
 -- Lua
-lspconfig.sumneko_lua.setup{
+lspconfig.lua_ls.setup{
   on_attach = on_attach,
   capabilities = capabilities,
   settings = {
     Lua = {
-      runtime = {
-        -- Tell the language server which version of Lua you're using (most likely LuaJIT in the case of Neovim)
-        version = 'LuaJIT',
+			--[[
+			runtime = {
+				-- Tell the language server which version of Lua you're using (most likely LuaJIT in the case of Neovim)
+				version = 'LuaJIT',
 				path = vim.split(package.path, ";")
-        },
+			},
+			]]--
       diagnostics = {
         -- Get the language server to recognize the `vim` global
-        globals = {'vim'},
+        globals = {'vim' },
         },
       workspace = {
         -- Make the server aware of Neovim runtime files
-        --library = vim.api.nvim_get_runtime_file("", true),
-				library = {[vim.fn.expand("$VIMRUNTIME/lua")] = true, [vim.fn.expand("$VIMRUNTIME/lua/vim/lsp")] = true}
+        library = vim.api.nvim_get_runtime_file("", true),
+				--library = {[vim.fn.expand("$VIMRUNTIME/lua")] = true, [vim.fn.expand("$VIMRUNTIME/lua/vim/lsp")] = true}
         },
       -- Do not send telemetry data containing a randomized but unique identifier
       telemetry = {
@@ -134,21 +140,62 @@ lspconfig.prosemd_lsp.setup{
     settings = {},
 }
 
-lspconfig.puppet.setup {
+--[[
+if vim.fn.has("win64") == 1 then
+	lspconfig.puppet.setup {
+		on_attach = on_attach,
+		capabilities = capabilities,
+		-- DEBUG add '--stdio', '--debug=/tmp/puppet-lsp-debug.log'
+		command = { "ruby" },
+		args = { vim.fn.expand("$HOME\\software\\puppet-editor-services\\puppet-languageserver"), '--stdio' },
+		filetypes = { 'puppet' },
+		root_dir = function(fname)
+			local root_files = {
+				"manifests",
+				"metadata.json",
+				".git"
+			}
+			return util.root_pattern(unpack(root_files))(fname) or util.path.dirname(fname)
+		end,
+	}
+else
+	lspconfig.puppet.setup {
+		on_attach = on_attach,
+		capabilities = capabilities,
+		-- DEBUG add '--stdio', '--debug=/tmp/puppet-lsp-debug.log'
+		cmd = { vim.fn.expand("$HOME/software/puppet-editor-services/puppet-languageserver"), '--stdio' },
+		filetypes = { 'puppet' },
+		root_dir = function(fname)
+			local root_files = {
+				"manifests",
+				"metadata.json",
+				".git"
+			}
+			return util.root_pattern(unpack(root_files))(fname) or util.path.dirname(fname)
+		end,
+	}
+end
+]]--
+
+lspconfig.terraformls.setup{
+	--cmd = { "terraform-ls", "serve" },
   on_attach = on_attach,
-  capabilities = capabilities,
-  -- DEBUG add '--stdio', '--debug=/tmp/puppet-lsp-debug.log'
-  cmd = { vim.fn.expand("$HOME/software/puppet-editor-services/puppet-languageserver"), '--stdio' },
-  filetypes = { 'puppet' },
-  root_dir = function(fname)
-    local root_files = {
-      "manifests",
-      "metadata.json",
-      ".git"
-    }
-    return util.root_pattern(unpack(root_files))(fname) or util.path.dirname(fname)
-  end,
+	root_dir = function(fname)
+		return util.find_git_ancestor(fname) or vim.fn.getcwd()
+	end,
+  capabilities = capabilities
 }
+local buf_group = vim.api.nvim_create_augroup(
+	"BufGroup",
+	{ clear = true }
+)
+vim.api.nvim_create_autocmd({"BufWritePre"}, {
+	group = buf_group,
+  pattern = {"*.tf", "*.tfvars"},
+  callback = function ()
+		vim.lsp.buf.format()
+	end
+})
 
 -- Enable diagnostics
 vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(

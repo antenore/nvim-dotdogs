@@ -3,8 +3,8 @@ require "utils"
 --  ===== let global vars (let g:xx = xxx) =====================================
 Variable.g {
 	-- this will save almost 20ms
-	python3_host_skip_check = 1,
-	python3_host_prog       = "/usr/bin/python3",
+	-- python3_host_skip_check = 1,
+	-- python3_host_prog       = "/usr/bin/python3",
 	-- " enable embeded lua syntax
 	-- " see https://github.com/neovim/neovim/pull/14213
 	vimsyn_embed            = "l",
@@ -176,7 +176,7 @@ nnoremap { '<Space>x', ":let @/=''<CR>" }
 noremap { "<F5>", ":setlocal spell! spelllang=en_us<CR>" }
 
 -- Buffer navigation
-nnoremap { '<leader><Enter>', ':<C-u>Buffers<CR>' }
+nnoremap { '<leader><Enter>', ':<C-u>buffers<CR>' }
 
 -- tab shortcuts
 map { "<leader>tn", ":tabnew<CR>" }
