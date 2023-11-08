@@ -38,6 +38,8 @@ vim.opt.runtimepath:prepend(lazypath)
 
 
 require("lazy").setup({
+	{ 'wbthomason/packer.nvim' }, -- Have packer manage itself
+	{ 'lewis6991/impatient.nvim' },
 	{
 		"nathom/filetype.nvim",
 		config = function()
@@ -65,22 +67,16 @@ require("lazy").setup({
 	{
 		'nvim-lualine/lualine.nvim',
 		dependencies = { 'kyazdani42/nvim-web-devicons', opt = true },
-		config = function()
-			require('config.lualine')
-		end,
+		config = [[require('config.lualine')]],
 	},
 	{
 		'nvim-treesitter/nvim-treesitter',
 		run = ':TSUpdate',
-		config = function()
-			require('config.treesitter')
-		end,
+		config = [[require('config.treesitter')]],
 	},
 	{
 		'jose-elias-alvarez/null-ls.nvim',
-		config = function()
-			require('config.null-ls')
-		end,
+		config = [[require('config.null-ls')]],
 	},
 	-- LSP
 	{
@@ -93,9 +89,7 @@ require("lazy").setup({
 			'folke/lsp-colors.nvim',
 			'nvim-lua/lsp_extensions.nvim',
 		},
-		config = function()
-			require('config.lsp')
-		end,
+		config = [[require('config.lsp')]],
 	},
 
 	-- https://github.com/ray-x/lsp_signature.nvim
@@ -123,17 +117,13 @@ require("lazy").setup({
 			'f3fora/cmp-spell',
 			'hrsh7th/cmp-emoji',
 		},
-		config = function()
-			require('config.cmp').setup()
-		end,
+		config = [[require('config.cmp').setup()]],
 	},
 	{ 'rafamadriz/friendly-snippets' },
 	{
 		'L3MON4D3/LuaSnip',
 		dependencies = { 'rafamadriz/friendly-snippets' },
-		config = function()
-			require('config.luasnip')
-		end,
+		config = [[require('config.luasnip')]],
 	},
 	{'saadparwaiz1/cmp_luasnip'},
 
@@ -149,9 +139,7 @@ require("lazy").setup({
 	-- {
 	-- 'junegunn/fzf.vim',
 	-- -- Adding the config here and not requiring at the end, break telescope-ui-select
-	-- config = function()
-	--require('config.fzf')
-	--end,
+	-- config = [[require('config.fzf')]],
 	-- },
 
 	-- Telescope https://github.com/nvim-telescope/telescope.nvim
@@ -160,9 +148,7 @@ require("lazy").setup({
 		dependencies = {
 			{'nvim-lua/plenary.nvim'},
 		},
-		config = function()
-			require('config.telescope')
-		end,
+		config = [[require('config.telescope')]],
 	},
 	{ 'nvim-telescope/telescope-ui-select.nvim' },
 	{ 'nvim-telescope/telescope-symbols.nvim' },
@@ -175,9 +161,7 @@ require("lazy").setup({
 	{ 'chrisbra/csv.vim' },
 	{
 		'ludovicchabant/vim-gutentags',
-		config = function()
-			require('config.gutentags')
-		end,
+		config = [[require('config.gutentags')]],
 	},
 	{
 		'liuchengxu/vista.vim',
@@ -201,17 +185,13 @@ require("lazy").setup({
 	-- { 'mboughaba/i3config.vim' },
 	{
 		'ixru/nvim-markdown',
-		config = function()
-			require('config.nvim-markdown').setup()
-		end,
+		config = [[require('config.nvim-markdown').setup()]],
 	},
 
 	{
 		'kyazdani42/nvim-tree.lua',
 		dependencies = { 'kyazdani42/nvim-web-devicons' },
-		config = function()
-			require('config.nvim-tree')
-		end,
+		config = [[require('config.nvim-tree')]],
 	},
 
 	-- Git
@@ -231,38 +211,32 @@ require("lazy").setup({
 	https://github.com/norcalli/nvim-colorizer.lua
 	Given a text like #800080 it will show the real color
 	It supports the following code and you can write your own parser
-	DEFAULT_OPTIONS = {
-	RGB      = true;         -- #RGB hex codes
-	RRGGBB   = true;         -- #RRGGBB hex codes
-	names    = true;         -- "Name" codes like Blue
-	RRGGBBAA = false;        -- #RRGGBBAA hex codes
-	rgb_fn   = false;        -- CSS rgb() and rgba() functions
-	hsl_fn   = false;        -- CSS hsl() and hsla() functions
-	css      = false;        -- Enable all CSS features: rgb_fn, hsl_fn, names, RGB, RRGGBB
-	css_fn   = false;        -- Enable all CSS *functions*: rgb_fn, hsl_fn
-	-- Available modes: foreground, background
-	mode     = 'background'; -- Set the display mode.
-	}
+		DEFAULT_OPTIONS = {
+			RGB      = true;         -- #RGB hex codes
+			RRGGBB   = true;         -- #RRGGBB hex codes
+			names    = true;         -- "Name" codes like Blue
+			RRGGBBAA = false;        -- #RRGGBBAA hex codes
+			rgb_fn   = false;        -- CSS rgb() and rgba() functions
+			hsl_fn   = false;        -- CSS hsl() and hsla() functions
+			css      = false;        -- Enable all CSS features: rgb_fn, hsl_fn, names, RGB, RRGGBB
+			css_fn   = false;        -- Enable all CSS *functions*: rgb_fn, hsl_fn
+			-- Available modes: foreground, background
+			mode     = 'background'; -- Set the display mode.
+			}
 	With files that are not automatically detected you use ColorizerAttachToBuffer
 	--]]
 	{
 		'norcalli/nvim-colorizer.lua',
-		config = function()
-			require('config.nvim-colorizer')
-		end,
+		config = [[require('config.nvim-colorizer')]],
 	},
 	-- https://github.com/glepnir/indent-guides.nvim
 	-- {
 	-- 	'glepnir/indent-guides.nvim',
-	-- 	config = function()
-	--require('config.indent-guides')
-	--end,
+	-- 	config = [[require('config.indent-guides')]],
 	-- },
 	{
 		"lukas-reineke/indent-blankline.nvim",
-		config = function()
-			require('config.indent-blanklines')
-		end,
+		config = [[require('config.indent-blanklines')]],
 	},
 	{
 		"kylechui/nvim-surround",
@@ -285,36 +259,30 @@ require("lazy").setup({
 	{
 		'mcchrish/zenbones.nvim',
 		dependencies = { 'rktjmp/lush.nvim', opt = true },
-		config = function()
-			vim.g.zenbones_darkness = "warm"
-			vim.g.zenbones_lightness = "dim"
-			vim.opt.termguicolors = true
-			vim.opt.background = "dark"
-			vim.cmd('colorscheme tokyobones')
-		end,
+		config = [[
+						vim.g.zenbones_darkness = "warm"
+						vim.g.zenbones_lightness = "dim"
+						vim.opt.termguicolors = true
+						vim.opt.background = "dark"
+						vim.cmd('colorscheme tokyobones')
+		]]
 	},
 	-- { 'ewilazarus/preto' },
 	-- {
 	-- 	'luochen1990/rainbow',
-	-- 	config = function()
-	--require('config.rainbow')
-	--end,
+	-- 	config = [[require('config.rainbow')]],
 	-- },
 	-- Not maintained anymore { 'p00f/nvim-ts-rainbow' },
 	{ 'lervag/vimtex' },
 	{ 'neomake/neomake', cmd = 'Neomake' },
 	{
 		'jbyuki/venn.nvim',
-		config = function()
-			require('config.venn')
-		end,
+		config = [[require('config.venn')]],
 	},
 	{
 		'goolord/alpha-nvim',
 		dependencies = { 'kyazdani42/nvim-web-devicons' },
-		config = function()
-			require('config.alpha')
-		end,
+		config = [[require('config.alpha')]],
 	},
 
 	-- terraform

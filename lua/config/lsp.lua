@@ -37,6 +37,7 @@ require("mason-lspconfig").setup {
 		'bashls',
 		'marksman',
 		'prosemd_lsp',
+		'jedi_language_server',
 		-- 'puppet',
 		'terraformls',
 		'yamlls',
@@ -177,6 +178,23 @@ else
 end
 ]]--
 
+-- Python
+--lspconfig.jedi_language_server.setup {
+--	on_attach = on_attach
+--}
+lspconfig.pyright.setup {
+	on_attach = on_attach
+}
+--lspconfig.ruff_lsp.setup {
+--  on_attach = on_attach,
+--  init_options = {
+--    settings = {
+--      -- Any extra CLI arguments for `ruff` go here.
+--      args = {},
+--    }
+--  }
+--}
+-- terraform
 lspconfig.terraformls.setup{
 	--cmd = { "terraform-ls", "serve" },
   on_attach = on_attach,

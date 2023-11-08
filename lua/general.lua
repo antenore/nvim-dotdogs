@@ -22,7 +22,8 @@ Option.g {
 	-- Migrated
 	-- clipboard   = vim.opt.clipboard + "unnamedplus",
 	regexpengine   = 1,
-	browsedir      = "current",
+	-- moved outside as work only with browse = true
+	-- browsedir      = "current",
 	termguicolors  = true,
 
 	-- enable cursorline
@@ -43,7 +44,8 @@ Option.g {
 	shortmess      = vim.o.shortmess .. "c",
 	list           = true,
 
-	pastetoggle    = '<F12>',
+        -- Notused anymore ??? Testing
+	-- pastetoggle    = '<F12>',
 
 	-- stylua: ignore
 	listchars      = "tab:│ ,trail:•,extends:❯,precedes:❮",
@@ -62,7 +64,7 @@ Option.g {
 	ttimeoutlen    = 50,                     -- keycode timeout
 
 	-- mouse       = "a",                    -- enable mouse, by default nvi (normal, visual, insert)
-	mouse          = "",                     -- Mouse disabled as recently has been enabled by default
+	mouse          = '',                     -- Mouse disabled as recently has been enabled by default
 	history        = 1000,                   -- number of command lines to remember
 	ttyfast        = true,                   -- assume fast terminal connection
 	viewoptions    = "folds,options,cursor", -- unix and slash are deprecated, do not use
@@ -130,7 +132,7 @@ Option.g {
 	foldlevelstart = 99,                     -- open all folds by default
 
 	textwidth      = 0,                      -- Disabled, text is not broken after N columns.
-	colorcolumn    = 87,                     -- highlight column after 'textwidth'
+	colorcolumn    = "87",                     -- highlight column after 'textwidth'
 	-- colorcolumn = "+86",               -- + - only when textwidth > 0
 }
 
@@ -138,6 +140,10 @@ if vim.fn.exists "$TMUX" then
 	vim.go.clipboard = "unnamedplus"
 else
 	vim.go.clipboard = "unnamedplus" --   "sync with OS clipboard
+end
+
+if vim.fn.has('browse') == 1 then
+	vim.go.browsedir = "current"
 end
 
 if vim.fn.executable "rg" then
@@ -248,29 +254,29 @@ Augroup {
 			end,
 		},
 	},
-	RemoveTrailingWhitespace = {
-		{
-			-- must use BufWritePre, if use BufWritePost has problem with other formatters (whitespace not got removed)
-			"BufWritePre",
-			"*",
-			function()
-				-- https://github.com/cappyzawa/trim.nvim/blob/9959b6638432d4f6674194fab1a3c50c44cdbf08/lua/trim/config.lua#L6
-				local patterns = {
-					[[%s/\s\+$//e]],
-					[[%s/\%u200b\+$//e]],
-					-- [[%s/\($\n\s*\)\+\%$//]],
-					-- [[%s/\%^\n\+//]],
-					-- [[%s/\(\n\n\)\n\+/\1/]],
-				}
-				-- https://github.com/cappyzawa/trim.nvim/blob/9959b6638432d4f6674194fab1a3c50c44cdbf08/lua/trim/trimmer.lua#L6
-				local save = vim.fn.winsaveview()
-				for _, v in pairs(patterns) do
-					vim.api.nvim_exec(string.format("silent! %s", v), false)
-				end
-				vim.fn.winrestview(save)
-			end,
-		},
-	},
+	-- RemoveTrailingWhitespace = {
+	-- 	{
+	-- 		-- must use BufWritePre, if use BufWritePost has problem with other formatters (whitespace not got removed)
+	-- 		"BufWritePre",
+	-- 		"*",
+	-- 		function()
+	-- 			-- https://github.com/cappyzawa/trim.nvim/blob/9959b6638432d4f6674194fab1a3c50c44cdbf08/lua/trim/config.lua#L6
+	-- 			local patterns = {
+	-- 				[[%s/\s\+$//e]],
+	-- 				[[%s/\%u200b\+$//e]],
+	-- 				-- [[%s/\($\n\s*\)\+\%$//]],
+	-- 				-- [[%s/\%^\n\+//]],
+	-- 				-- [[%s/\(\n\n\)\n\+/\1/]],
+	-- 			}
+	-- 			-- https://github.com/cappyzawa/trim.nvim/blob/9959b6638432d4f6674194fab1a3c50c44cdbf08/lua/trim/trimmer.lua#L6
+	-- 			local save = vim.fn.winsaveview()
+	-- 			for _, v in pairs(patterns) do
+	-- 				vim.api.nvim_exec(string.format("silent! %s", v), false)
+	-- 			end
+	-- 			vim.fn.winrestview(save)
+	-- 		end,
+	-- 	},
+	-- },
 	SetupTabsListFold = {
 		["FileType"] = {
 			{
@@ -284,7 +290,7 @@ Augroup {
 				"python",
 				function()
 					vim.wo.foldmethod = "indent"
-					vim.api.nvim_exec("normal m`:%s/\\s\\+$//e ``")
+					vim.api.nvim_exec2("normal m`:%s/\\s\\+$//e ``", {})
 					vim.bo.cinwords = "if,elif,else,for,while,try,except,finally,def,class,with"
 					vim.bo.expandtab = true -- use spaces for tabs
 					vim.bo.shiftwidth = 4
