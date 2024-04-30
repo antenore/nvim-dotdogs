@@ -227,7 +227,7 @@ Augroup {
 	SetupCursor = {
 		-- disable cursorline when insert/visual mode
 		{
-			"InsertLeave,WinEnter",
+                        {'InsertLeave', 'WinEnter'},
 			"*",
 			function()
 				vim.go.cursorline = true
@@ -235,7 +235,7 @@ Augroup {
 			end,
 		},
 		{
-			"InsertEnter,WinLeave",
+                        {'InsertEnter', 'WinLeave'},
 			"*",
 			function()
 				vim.go.cursorline = false
@@ -379,7 +379,7 @@ Augroup {
 		},
 	},
 	MiscFileType = {
-		["BufNewFile,BufRead"] = {
+		[{'BufNewFile','BufRead'} ] = {
 			{
 				".gitconfig",
 				function()
