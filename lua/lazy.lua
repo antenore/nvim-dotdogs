@@ -67,16 +67,22 @@ require("lazy").setup({
 	{
 		'nvim-lualine/lualine.nvim',
 		dependencies = { 'kyazdani42/nvim-web-devicons', opt = true },
-		config = [[require('config.lualine')]],
+		config = function()
+			require('config.lualine')
+		end,
 	},
 	{
 		'nvim-treesitter/nvim-treesitter',
 		run = ':TSUpdate',
-		config = [[require('config.treesitter')]],
+		config = function()
+			require('config.treesitter')
+		end,
 	},
 	{
 		'jose-elias-alvarez/null-ls.nvim',
-		config = [[require('config.null-ls')]],
+		config = function()
+			require('config.null-ls')
+		end,
 	},
 	-- LSP
 	{
@@ -89,7 +95,9 @@ require("lazy").setup({
 			'folke/lsp-colors.nvim',
 			'nvim-lua/lsp_extensions.nvim',
 		},
-		config = [[require('config.lsp')]],
+		config = function()
+				require('config.lsp')
+		end,
 	},
 
 	-- https://github.com/ray-x/lsp_signature.nvim
@@ -117,13 +125,17 @@ require("lazy").setup({
 			'f3fora/cmp-spell',
 			'hrsh7th/cmp-emoji',
 		},
-		config = [[require('config.cmp').setup()]],
+		config = function()
+				require('config.cmp').setup()
+		end,
 	},
 	{ 'rafamadriz/friendly-snippets' },
 	{
 		'L3MON4D3/LuaSnip',
 		dependencies = { 'rafamadriz/friendly-snippets' },
-		config = [[require('config.luasnip')]],
+		config = function()
+				require('config.luasnip')
+		end,
 	},
 	{'saadparwaiz1/cmp_luasnip'},
 
@@ -139,7 +151,7 @@ require("lazy").setup({
 	-- {
 	-- 'junegunn/fzf.vim',
 	-- -- Adding the config here and not requiring at the end, break telescope-ui-select
-	-- config = [[require('config.fzf')]],
+	-- config = function() require('config.fzf') end,
 	-- },
 
 	-- Telescope https://github.com/nvim-telescope/telescope.nvim
@@ -148,7 +160,9 @@ require("lazy").setup({
 		dependencies = {
 			{'nvim-lua/plenary.nvim'},
 		},
-		config = [[require('config.telescope')]],
+		config = function()
+				require('config.telescope')
+		end,
 	},
 	{ 'nvim-telescope/telescope-ui-select.nvim' },
 	{ 'nvim-telescope/telescope-symbols.nvim' },
@@ -161,7 +175,9 @@ require("lazy").setup({
 	{ 'chrisbra/csv.vim' },
 	{
 		'ludovicchabant/vim-gutentags',
-		config = [[require('config.gutentags')]],
+		config = function()
+				require('config.gutentags')
+		end,
 	},
 	{
 		'liuchengxu/vista.vim',
@@ -185,13 +201,17 @@ require("lazy").setup({
 	-- { 'mboughaba/i3config.vim' },
 	{
 		'ixru/nvim-markdown',
-		config = [[require('config.nvim-markdown').setup()]],
+		config = function()
+				require('config.nvim-markdown').setup()
+		end,
 	},
 
 	{
 		'kyazdani42/nvim-tree.lua',
 		dependencies = { 'kyazdani42/nvim-web-devicons' },
-		config = [[require('config.nvim-tree')]],
+		config = function()
+				require('config.nvim-tree')
+		end,
 	},
 
 	-- Git
@@ -227,16 +247,20 @@ require("lazy").setup({
 	--]]
 	{
 		'norcalli/nvim-colorizer.lua',
-		config = [[require('config.nvim-colorizer')]],
+		config = function()
+				require('config.nvim-colorizer')
+		end,
 	},
 	-- https://github.com/glepnir/indent-guides.nvim
 	-- {
 	-- 	'glepnir/indent-guides.nvim',
-	-- 	config = [[require('config.indent-guides')]],
+	-- 	config = function() require('config.indent-guides') end,
 	-- },
 	{
 		"lukas-reineke/indent-blankline.nvim",
-		config = [[require('config.indent-blanklines')]],
+		config = function()
+				require('config.indent-blanklines')
+		end,
 	},
 	{
 		"kylechui/nvim-surround",
@@ -259,30 +283,34 @@ require("lazy").setup({
 	{
 		'mcchrish/zenbones.nvim',
 		dependencies = { 'rktjmp/lush.nvim', opt = true },
-		config = [[
-						vim.g.zenbones_darkness = "warm"
-						vim.g.zenbones_lightness = "dim"
-						vim.opt.termguicolors = true
-						vim.opt.background = "dark"
-						vim.cmd('colorscheme tokyobones')
-		]]
+		config = function()
+			vim.g.zenbones_darkness = "warm"
+			vim.g.zenbones_lightness = "dim"
+			vim.opt.termguicolors = true
+			vim.opt.background = "dark"
+			vim.cmd('colorscheme tokyobones')
+		end,
 	},
 	-- { 'ewilazarus/preto' },
 	-- {
 	-- 	'luochen1990/rainbow',
-	-- 	config = [[require('config.rainbow')]],
+	-- 	config = function() require('config.rainbow') end,
 	-- },
 	-- Not maintained anymore { 'p00f/nvim-ts-rainbow' },
 	{ 'lervag/vimtex' },
 	{ 'neomake/neomake', cmd = 'Neomake' },
 	{
 		'jbyuki/venn.nvim',
-		config = [[require('config.venn')]],
+		config = function()
+				require('config.venn')
+		end,
 	},
 	{
 		'goolord/alpha-nvim',
 		dependencies = { 'kyazdani42/nvim-web-devicons' },
-		config = [[require('config.alpha')]],
+		config = function()
+				require('config.alpha')
+		end,
 	},
 
 	-- terraform
@@ -313,6 +341,7 @@ require("lazy").setup({
 		end
 	},
 	--{ vim.fn.expand("$HOME/software/myvim/plugins/mdview.nvim") },
+	{ dir = "~/software/myvim/plugins/mdview.nvim" },
 
 
 })

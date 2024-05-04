@@ -344,7 +344,7 @@ require("lazy").setup({
 			}
 		end
 	},
-	-- { vim.fn.expand("$HOME/software/myvim/plugins/mdview.nvim") },
+	{ dir = "~/software/myvim/plugins/mdview.nvim" },
 
 
 })

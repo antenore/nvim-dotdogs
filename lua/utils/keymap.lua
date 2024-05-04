@@ -1,7 +1,7 @@
 -- https://github.com/tjdevries/astronauta.nvim/raw/master/lua/astronauta/keymap.lua
 
 if vim.fn.has "nvim-0.7" ~= 1 then
-	vim.notify("using vim.keymap.set need at least neovim version >= 0.7", "error")
+	vim.notify("using vim.keymap.set need at least neovim version >= 0.7", vim.log.levels.ERROR)
 	return
 end
 

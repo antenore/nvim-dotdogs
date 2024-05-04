@@ -275,12 +275,12 @@ require('packer').startup(function()
 	use ({ 'tmux-plugins/vim-tmux' })
 	use ({ 'ryanoasis/vim-devicons' })
 	use ({ 'PProvost/vim-ps1' })
-	-- if isdir(vim.fn.expand("$HOME/software/myvim/plugins/mdview.nvim")) then
-	-- 	use ({
-	-- 		vim.fn.expand("$HOME/software/myvim/plugins/mdview.nvim"),
-	-- 	})
-	-- end
-	use({ 'https://gitlab.com/antenore/mdview.nvim.git' })
+	--if isdir(vim.fn.expand("$HOME/software/myvim/plugins/mdview.nvim")) then
+	--	use ({
+	--		vim.fn.expand("$HOME/software/myvim/plugins/mdview.nvim"),
+	--	})
+	--end
+	--use({ 'https://gitlab.com/antenore/mdview.nvim.git' })
 	-- if isdir(vim.fn.expand("$HOME/software/myvim/plugins/jaflpl.nvim")) then
 	--   use ({ vim.fn.expand("$HOME/software/myvim/plugins/jaflpl.nvim") })
 	-- end

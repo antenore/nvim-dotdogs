@@ -22,13 +22,13 @@ _G.inoremap = Keymap.inoremap
 
 function _G.dump(...)
 	local objects = vim.tbl_map(vim.inspect, { ... })
-	print(unpack(objects))
+	print(table.unpack(objects))
 end
 
 function _G.log_to_file(tag, ...)
 	tag = tag or "-"
 	local objects = vim.tbl_map(vim.inspect, { ... })
-	local obj_str = unpack(objects) or ""
+	local obj_str = table.unpack(objects) or ""
 	local file = assert(io.open("/tmp/nvim.log", "a"))
 	local prefix = tag .. " | " .. os.date "%Y-%m-%dT%H:%M:%S"
 	file:write(prefix .. "----------------------------------------------------->" .. "\n")

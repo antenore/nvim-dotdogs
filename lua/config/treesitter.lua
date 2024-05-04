@@ -1,6 +1,7 @@
 -- {{{ ===== nvim.treesitter ====================================================
 require("nvim-treesitter.install").prefer_git = true
 require'nvim-treesitter.configs'.setup {
+	modules = {},
 	-- A list of parser names, or "all"
 	-- ensure_installed = "all",  -- or "maintained"
 	ensure_installed = { "c", "lua", "rust", "vim", "python", "javascript",
@@ -10,6 +11,8 @@ require'nvim-treesitter.configs'.setup {
 
 	-- Install parsers synchronously (only applied to `ensure_installed`)
 	sync_install = false,
+
+	auto_install = true,
 
 	-- List of parsers to ignore installing (for "all")
 	ignore_install = { "latex" },
@@ -31,6 +34,15 @@ require'nvim-treesitter.configs'.setup {
 		-- Instead of true it can also be a list of languages
 		additional_vim_regex_highlighting = { "puppet" }
 	},
+	-- https://github.com/p00f/nvim-ts-rainbow
+  rainbow = {
+    enable = true,
+    -- disable = { "jsx", "cpp" }, list of languages you want to disable the plugin for
+    extended_mode = true, -- Also highlight non-bracket delimiters like html tags, boolean or table: lang -> boolean
+    max_file_lines = nil, -- Do not enable for files with more than n lines, int
+    -- colors = {}, -- table of hex strings
+    -- termcolors = {} -- table of colour name strings
+  },
 	incremental_selection = {
 		enable = true,
 		keymaps = {
@@ -46,32 +58,17 @@ require'nvim-treesitter.configs'.setup {
 }
 
 -- Puppet (and eventually other languahes)
-local parser_config = require "nvim-treesitter.parsers".get_parser_configs()
-parser_config.puppet = {
-  install_info = {
-    url = "https://github.com/awrenn/tree-sitter-puppet",
-    branch = "main",
-    files = { "src/parser.c", "src/scanner.cc" },
-    -- generate_requires_npm = true,
-  },
-  filetype = "puppet", -- if filetype does not agrees with parser name
-  -- used_by = {"bar", "baz"} -- additional filetypes that use this parser
-}
--- https://github.com/p00f/nvim-ts-rainbow
-require("nvim-treesitter.configs").setup {
-  highlight = {
-      -- ...
-  },
-  -- ...
-  rainbow = {
-    enable = true,
-    -- disable = { "jsx", "cpp" }, list of languages you want to disable the plugin for
-    extended_mode = true, -- Also highlight non-bracket delimiters like html tags, boolean or table: lang -> boolean
-    max_file_lines = nil, -- Do not enable for files with more than n lines, int
-    -- colors = {}, -- table of hex strings
-    -- termcolors = {} -- table of colour name strings
-  }
-}
+--local parser_config = require "nvim-treesitter.parsers".get_parser_configs()
+-- parser_config.puppet = {
+--   install_info = {
+--     url = "https://github.com/awrenn/tree-sitter-puppet",
+--     branch = "main",
+--     files = { "src/parser.c", "src/scanner.cc" },
+--     -- generate_requires_npm = true,
+--   },
+--   filetype = "puppet", -- if filetype does not agrees with parser name
+--   -- used_by = {"bar", "baz"} -- additional filetypes that use this parser
+-- }
 -- vim.opt.foldmethod = "expr"
 -- vim.opt.foldexpr = "nvim-treesitter#foldexpr()"
 -- }}}
