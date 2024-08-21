@@ -6,6 +6,8 @@ local c = luasnip.choice_node
 
 -- Configuration
 luasnip.config.setup({
+	version = "v2.*", -- Replace <CurrentMajor> by the latest released major (first number of latest release)
+	build = "make install_jsregexp",
   updateevents = "TextChanged,TextChangedI",
   region_check_events = "InsertEnter",
   store_selection_keys = "<C-H>",

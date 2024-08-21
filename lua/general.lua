@@ -1,408 +1,202 @@
-require "utils"
+local opt = vim.opt
+local keymap = vim.keymap.set
 
---  ===== let global vars (let g:xx = xxx) =====================================
-Variable.g {
-	-- this will save almost 20ms
-	-- python3_host_skip_check = 1,
-	-- python3_host_prog       = "/usr/bin/python3",
-	-- " enable embeded lua syntax
-	-- " see https://github.com/neovim/neovim/pull/14213
-	vimsyn_embed            = "l",
-	mousehide               = true, --  "hide when characters are typed
-}
+-- Global options
+opt.encoding = "utf-8"
+opt.shada = "!,%,:100,'300,/50,<300,s100,f1,h"
+opt.makeef = "error.err"
+opt.spellfile = vim.fn.expand("$HOME/Dropbox/vim/spell/en.utf-8.add")
+-- The next option is problematic with cmp-cmdline https://github.com/hrsh7th/cmp-cmdline/issues/87
+-- opt.regexpengine = 1
+opt.termguicolors = true
+opt.cursorline = true
+opt.cursorcolumn = true
+opt.undofile = true
+opt.undolevels = 1000
+opt.undoreload = 10000
+opt.cmdheight = 2
+opt.laststatus = 2
+opt.showmode = false
+opt.completeopt = "menu,menuone,noselect"
+opt.shortmess:append("c")
+opt.list = true
+opt.listchars = "tab:│ ,trail:•,extends:❯,precedes:❮"
+opt.updatetime = 100
+opt.signcolumn = "yes:2"
+opt.background = "dark"
+opt.timeoutlen = 300
+opt.ttimeoutlen = 50
+opt.mouse = ""
+opt.history = 1000
+opt.ttyfast = true
+opt.viewoptions = "folds,options,cursor"
+opt.hidden = true
+opt.autoread = true
+opt.fileformats = "unix,dos,mac"
+opt.showcmd = true
+opt.modeline = true
+opt.modelines = 5
+opt.startofline = false
+opt.shelltemp = false
+opt.backspace = "indent,eol,start"
+opt.autoindent = true
+opt.expandtab = true
+opt.smarttab = true
+opt.tabstop = 8
+opt.softtabstop = 4
+opt.shiftwidth = 4
+opt.shiftround = true
+opt.linebreak = true
+opt.showbreak = "↪ "
+opt.wrap = false
+opt.scrolloff = 1
+opt.scrolljump = 5
+opt.wildmenu = true
+opt.wildmode = "list:longest,full"
+opt.wildignorecase = true
+opt.wildchar = 9
+opt.splitbelow = true
+opt.splitright = true
+opt.errorbells = false
+opt.visualbell = false
+opt.hlsearch = true
+opt.incsearch = true
+opt.ignorecase = true
+opt.smartcase = true
+opt.smartindent = true
+opt.backup = true
+opt.backupdir = vim.fn.stdpath("cache") .. "/nvim"
+opt.swapfile = false
+opt.showmatch = true
+opt.matchtime = 2
+opt.number = true
+opt.foldenable = true
+opt.foldmethod = "indent"
+opt.foldlevelstart = 99
+opt.textwidth = 0
+opt.colorcolumn = "87"
 
---  ===== set global options (set xxx = xxx) ==================================
+-- Clipboard setting
+-- opt.clipboard = vim.fn.exists("$TMUX") == 1 and "unnamedplus" or "unnamedplus"
 
-Option.g {
-	encoding       = "utf-8",                -- "set encoding for text
-	-- Files
-	shada          = "!,%,:100,'300,/50,<300,s100,f1,h",
-	makeef         = "error.err",
-	spellfile      = vim.fn.expand("$HOME/Dropbox/vim/spell/en.utf-8.add"),
-	-- Migrated
-	-- clipboard   = vim.opt.clipboard + "unnamedplus",
-	regexpengine   = 1,
-	-- moved outside as work only with browse = true
-	-- browsedir      = "current",
-	termguicolors  = true,
-
-	-- enable cursorline
-	cursorline     = true,
-	cursorcolumn   = true,
-
-	undodir        = vim.fn.expand(vim.fn.stdpath "cache" .. "/nvim"),
-	undofile       = true,
-	undolevels     = 1000,
-	undoreload     = 10000,
-	cmdheight      = 2,
-	laststatus     = 2,
-	showmode       = false,
-	-- Set completeopt to have a better completion experience
-	-- https://github.com/hrsh7th/nvim-cmp#completioncompleteopt-type-string
-	completeopt    = "menu,menuone,noselect",
-	-- Avoid showing message extra message when using completion
-	shortmess      = vim.o.shortmess .. "c",
-	list           = true,
-
-        -- Notused anymore ??? Testing
-	-- pastetoggle    = '<F12>',
-
-	-- stylua: ignore
-	listchars      = "tab:│ ,trail:•,extends:❯,precedes:❮",
-
-	-- " The delay is governed by vim's updatetime option,
-	-- " default updatetime 4000ms is not good for async update
-	updatetime     = 100,
-
-	-- set signcolumn to 2 to avoid git gutter sign conflict with linter sign
-	signcolumn     = "yes:2",
-
-	background     = "dark",
-
-	-- base configuration
-	timeoutlen     = 300,                    -- mapping timeout
-	ttimeoutlen    = 50,                     -- keycode timeout
-
-	-- mouse       = "a",                    -- enable mouse, by default nvi (normal, visual, insert)
-	mouse          = '',                     -- Mouse disabled as recently has been enabled by default
-	history        = 1000,                   -- number of command lines to remember
-	ttyfast        = true,                   -- assume fast terminal connection
-	viewoptions    = "folds,options,cursor", -- unix and slash are deprecated, do not use
-	hidden         = true,                   -- allow buffer switching without saving
-	autoread       = true,                   -- auto reload if file saved externally
-	fileformats    = "unix,dos,mac",         -- add mac to auto-detection of file format line endings
-	-- nrformats   = "bin,hex"
-	showcmd        = true,
-	-- showfulltag = true,
-	modeline       = true,
-	modelines      = 5,
-	startofline    = false,
-
-	shelltemp      = false,                  -- use pipes
-	-- whitespace
-	backspace      = "indent,eol,start",     -- " allow backspacing everything in insert mode
-	autoindent     = true,                   -- " automatically indent to match adjacent lines
-	expandtab      = true,                   -- " spaces instead of tabs
-	smarttab       = true,                   -- " use shiftwidth to enter tabs
-	tabstop        = 8,                      -- " number of spaces per tab for display
-	softtabstop    = 4,                      -- " number of spaces per tab in insert mode
-	shiftwidth     = 4,                      -- " number of spaces when indenting
-	shiftround     = true,
-	linebreak      = true,
-	showbreak      = "↪ ",
-	wrap           = false,
-
-	-- ruler       = true,
-	-- title       = true,
-
-	scrolloff      = 1,                      -- always show content after scroll
-	scrolljump     = 5,                      -- minimum number of lines to scroll
-	-- display     = "lastline,msgsep",
-	wildmenu       = true,                   -- show list for autocomplete
-	wildmode       = "list:longest,full",    -- Command-line completion mode
-	wildignorecase = true,
-	wildchar       = 9,                      -- Like settings <Tab>
-
-	splitbelow     = true,
-	splitright     = true,
-
-	-- disable sounds
-	errorbells     = false,
-	visualbell     = false,
-
-	-- searching
-	hlsearch       = true,                   -- "highlight searches
-	incsearch      = true,                   -- "incremental searching
-	ignorecase     = true,                   -- "ignore case for searching
-	smartcase      = true,                   -- "do case-sensitive if there's a capital letter
-	smartindent    = true,
-
-	-- backups
-	backup         = true,
-	backupdir      = vim.fn.expand(vim.fn.stdpath "cache" .. "/nvim"),
-	-- no swap files
-	swapfile       = false,
-
-	-- ui configuration
-	showmatch      = true,                   -- automatically highlight matching braces/brackets/etc.
-	matchtime      = 2,                      -- tens of a second to show matching parentheses
-	number         = true,
-	foldenable     = true,                   -- enable folds by default
-	foldmethod     = "indent",               -- do not use syntax as fdm due to performance issue
-	foldlevelstart = 99,                     -- open all folds by default
-
-	textwidth      = 0,                      -- Disabled, text is not broken after N columns.
-	colorcolumn    = "87",                     -- highlight column after 'textwidth'
-	-- colorcolumn = "+86",               -- + - only when textwidth > 0
-}
-
-if vim.fn.exists "$TMUX" then
-	vim.go.clipboard = "unnamedplus"
-else
-	vim.go.clipboard = "unnamedplus" --   "sync with OS clipboard
-end
-
+-- Set browsedir if supported
 if vim.fn.has('browse') == 1 then
-	vim.go.browsedir = "current"
+    opt.browsedir = "current"
 end
 
-if vim.fn.executable "rg" then
-	-- With --vimgrep default value for the --color flag changes to 'never'.
-	vim.go.grepprg = "rg --no-heading --vimgrep --smart-case --follow"
-	vim.go.grepformat = "%f:%l:%c:%m"
+-- Set grepprg if rg is available
+if vim.fn.executable("rg") == 1 then
+    opt.grepprg = "rg --no-heading --vimgrep --smart-case --follow"
+    opt.grepformat = "%f:%l:%c:%m"
 end
 
--- window options
-Option.w {}
+-- Keymaps
+local function map(mode, lhs, rhs, opts)
+    local options = { noremap = true, silent = true }
+    if opts then options = vim.tbl_extend("force", options, opts) end
+    keymap(mode, lhs, rhs, options)
+end
 
--- buffer options
-Option.b {}
+-- Window navigation
+map("n", "<C-h>", "<C-w>h", { desc = "Move to left window" })
+map("n", "<C-j>", "<C-w>j", { desc = "Move to bottom window" })
+map("n", "<C-k>", "<C-w>k", { desc = "Move to top window" })
+map("n", "<C-l>", "<C-w>l", { desc = "Move to right window" })
 
---  ==== keybinds ==============================================================
+-- Window resizing
+map("n", "<Up>", ":resize -2<CR>", { desc = "Decrease window height" })
+map("n", "<Down>", ":resize +2<CR>", { desc = "Increase window height" })
+map("n", "<Left>", ":vertical resize -2<CR>", { desc = "Decrease window width" })
+map("n", "<Right>", ":vertical resize +2<CR>", { desc = "Increase window width" })
+map("n", "<Leader>+", ":exe 'resize ' .. (winheight(0) * 3/2)<CR>", { desc = "Increase window height" })
+map("n", "<Leader>-", ":exe 'resize ' .. (winheight(0) * 2/3)<CR>", { desc = "Decrease window height" })
 
--- quick navigate between windows
-nnoremap { "<C-h>", "<C-w>h" }
-nnoremap { "<C-j>", "<C-w>j" }
-nnoremap { "<C-k>", "<C-w>k" }
-nnoremap { "<C-l>", "<C-w>l" }
+-- Misc mappings
+map("n", "<Space>x", ":let @/=''<CR>", { desc = "Clear search highlight" })
+map("n", "<F5>", ":setlocal spell! spelllang=en_us<CR>", { desc = "Toggle spell check" })
+map("n", "<leader><Enter>", ":<C-u>buffers<CR>", { desc = "List buffers" })
+map("n", "<leader>tn", ":tabnew<CR>", { desc = "New tab" })
+map("n", "<leader>tc", ":tabclose<CR>", { desc = "Close tab" })
 
--- Smart resizing
-nnoremap { '<Up>', ':resize -2<CR>' }
-nnoremap { '<Down>', ':resize +2<CR>' }
-nnoremap { '<Left>', ':vertical resize -2<CR>' }
-nnoremap { '<Right>', ':vertical resize +2<CR>' }
--- Resizing splits
-nnoremap { '<Leader>+', ':exe "resize " . (winheight(0) * 3/2)<CR>' }
-nnoremap { '<Leader>-', ':exe "resize " . (winheight(0) * 2/3)<CR>' }
+-- Buffer switching
+for i = 1, 9 do
+    map("n", "<leader>" .. i, ":" .. i .. "b<CR>", { desc = "Switch to buffer " .. i })
+end
+map("n", "<leader>0", ":10b<CR>", { desc = "Switch to buffer 10" })
 
--- for unhighlighing the selections
-nnoremap { '<Space>x', ":let @/=''<CR>" }
+-- Autocommands
+local function augroup(name)
+    return vim.api.nvim_create_augroup("custom_" .. name, { clear = true })
+end
 
--- Spelling
-noremap { "<F5>", ":setlocal spell! spelllang=en_us<CR>" }
-
--- Buffer navigation
-nnoremap { '<leader><Enter>', ':<C-u>buffers<CR>' }
-
--- tab shortcuts
-map { "<leader>tn", ":tabnew<CR>" }
-map { "<leader>tc", ":tabclose<CR>" }
-
---   " quick switch tab window
--- nnoremap { "<right>", ":tabnext<CR>" }
--- nnoremap { "<left>", ":tabprev<CR>" }
--- Switching buffer mapping
-noremap { "<leader>1", ":1b<CR>", silent = true }
-noremap { "<leader>2", ":2b<CR>", silent = true }
-noremap { "<leader>3", ":3b<CR>", silent = true }
-noremap { "<leader>4", ":4b<CR>", silent = true }
-noremap { "<leader>5", ":5b<CR>", silent = true }
-noremap { "<leader>6", ":6b<CR>", silent = true }
-noremap { "<leader>7", ":7b<CR>", silent = true }
-noremap { "<leader>8", ":8b<CR>", silent = true }
-noremap { "<leader>9", ":9b<CR>", silent = true }
-noremap { "<leader>0", ":10b<CR>", silent = true }
-
--- Remap ctrl-] to Enter and ctrl-T to Esc to make help sane.
-local remap_group = vim.api.nvim_create_augroup(
-	"RemapGroup",
-	{ clear = true }
-)
-vim.api.nvim_create_autocmd({ 'FileType' }, {
-	group = remap_group,
-	pattern = { 'help' },
-	callback = function()
-		vim.api.nvim_buf_set_keymap(0, "n", "<CR>", "<C-]>", { noremap = true })
-	end
-})
-vim.api.nvim_create_autocmd({ 'FileType' }, {
-	group = remap_group,
-	pattern = { 'help' },
-	callback = function ()
-		vim.api.nvim_buf_set_keymap(0, "n", "<BS>", "<C-T>", { noremap = true })
-	end
+-- Cursor setup
+vim.api.nvim_create_autocmd({ "InsertLeave", "WinEnter" }, {
+    group = augroup("cursor_active"),
+    callback = function()
+        vim.opt.cursorline = true
+        vim.opt.number = true
+    end,
 })
 
-Augroup {
-	SetupCursor = {
-		-- disable cursorline when insert/visual mode
-		{
-                        {'InsertLeave', 'WinEnter'},
-			"*",
-			function()
-				vim.go.cursorline = true
-				vim.go.number = true
-			end,
-		},
-		{
-                        {'InsertEnter', 'WinLeave'},
-			"*",
-			function()
-				vim.go.cursorline = false
-				vim.go.number = false
-			end,
-		},
-		-- restore-cursor
-		{
-			"BufReadPost",
-			"*",
-			function()
-				-- :h restore-cursor or :h last-position-jump
-				if vim.fn.line "'\"" >= 1 and vim.fn.line "'\"" <= vim.fn.line "$" and vim.bo.ft ~= "commit" then
-					vim.cmd 'normal! g`"'
-				end
-			end,
-		},
-	},
-	-- RemoveTrailingWhitespace = {
-	-- 	{
-	-- 		-- must use BufWritePre, if use BufWritePost has problem with other formatters (whitespace not got removed)
-	-- 		"BufWritePre",
-	-- 		"*",
-	-- 		function()
-	-- 			-- https://github.com/cappyzawa/trim.nvim/blob/9959b6638432d4f6674194fab1a3c50c44cdbf08/lua/trim/config.lua#L6
-	-- 			local patterns = {
-	-- 				[[%s/\s\+$//e]],
-	-- 				[[%s/\%u200b\+$//e]],
-	-- 				-- [[%s/\($\n\s*\)\+\%$//]],
-	-- 				-- [[%s/\%^\n\+//]],
-	-- 				-- [[%s/\(\n\n\)\n\+/\1/]],
-	-- 			}
-	-- 			-- https://github.com/cappyzawa/trim.nvim/blob/9959b6638432d4f6674194fab1a3c50c44cdbf08/lua/trim/trimmer.lua#L6
-	-- 			local save = vim.fn.winsaveview()
-	-- 			for _, v in pairs(patterns) do
-	-- 				vim.api.nvim_exec(string.format("silent! %s", v), false)
-	-- 			end
-	-- 			vim.fn.winrestview(save)
-	-- 		end,
-	-- 	},
-	-- },
-	SetupTabsListFold = {
-		["FileType"] = {
-			{
-				"css,scss",
-				function()
-					vim.wo.foldmethod = "marker"
-					vim.wo.foldmarker = { "," }
-				end,
-			},
-			{
-				"python",
-				function()
-					vim.wo.foldmethod = "indent"
-					vim.api.nvim_exec2("normal m`:%s/\\s\\+$//e ``", {})
-					vim.bo.cinwords = "if,elif,else,for,while,try,except,finally,def,class,with"
-					vim.bo.expandtab = true -- use spaces for tabs
-					vim.bo.shiftwidth = 4
-					vim.bo.smartindent = true -- insert indents automatically
-					vim.bo.tabstop = 4
-					vim.wo.colorcolumn = "80"
-				end,
-			},
-			{
-				"markdown",
-				function()
-					vim.wo.list = false
-				end,
-			},
-			{
-				"vim",
-				function()
-					vim.wo.foldmethod = "indent"
-					vim.bo.keywordprg = ":help"
-				end,
-			},
-			-- C
-			{
-				"c,h",
-				function()
-					vim.bo.expandtab = false
-					vim.bo.tabstop = 8
-					vim.bo.softtabstop = 8
-					vim.bo.shiftwidth = 8
-				end,
-			},
+vim.api.nvim_create_autocmd({ "InsertEnter", "WinLeave" }, {
+    group = augroup("cursor_inactive"),
+    callback = function()
+        vim.opt.cursorline = false
+        vim.opt.number = false
+    end,
+})
 
-			{
-				"vim,xml,html,yaml,dockerfile,ruby,puppet",
-				function()
-					vim.bo.tabstop = 2
-					vim.bo.softtabstop = 2
-					vim.bo.shiftwidth = 2
-				end,
-			},
-			{
-				"ruby",
-				function()
-					vim.wo.foldmethod = "expr"
-				end,
-			},
-			{
-				"lua",
-				function()
-					vim.bo.expandtab = false
-					vim.bo.tabstop = 2
-					vim.bo.softtabstop = 2
-					vim.bo.shiftwidth = 2
-				end,
-			},
-			{
-				"sh",
-				function()
-					vim.wo.foldmethod = "syntax"
-				end,
-			},
+-- Restore cursor position
+vim.api.nvim_create_autocmd("BufReadPost", {
+    group = augroup("restore_cursor"),
+    callback = function()
+        local mark = vim.api.nvim_buf_get_mark(0, '"')
+        local lcount = vim.api.nvim_buf_line_count(0)
+        if mark[1] > 0 and mark[1] <= lcount then
+            pcall(vim.api.nvim_win_set_cursor, 0, mark)
+        end
+    end,
+})
 
-			-- " in makefiles, don't expand tabs to spaces, since actual tab characters are
-			-- " needed, and have indentation at 8 chars to be sure that all indents are tabs
-			{
-				"make",
-				function()
-					vim.bo.textwidth = 0
-					vim.bo.expandtab = false
-					vim.wo.wrap = false
-					vim.bo.softtabstop = 0
-					vim.bo.tabstop = 4
-					vim.bo.shiftwidth = 4
-				end,
-			},
-		},
-	},
-	CommentString = {
-		["FileType"] = {
-			{
-				"toml",
-				function()
-					vim.bo.commentstring = "# %s"
-				end,
-			},
-		},
-	},
-	MiscFileType = {
-		[{'BufNewFile','BufRead'} ] = {
-			{
-				".gitconfig",
-				function()
-					vim.api.nvim_command "setlocal filetype=dosini"
-				end,
-			},
-			{
-				"*.{automount,service,socket,target,timer}",
-				function()
-					vim.api.nvim_command "setlocal filetype=systemd"
-				end,
-			},
-		},
-	},
-	Misc = {
-		["TextYankPost"] = {
-			{
-				"*",
-				function()
-					-- Highlight on yank
-					vim.highlight.on_yank { higroup = "IncSearch", timeout = 150, on_visual = true }
-				end,
-			},
-		},
-	},
-}
+-- FileType-specific settings
+vim.api.nvim_create_autocmd("FileType", {
+    group = augroup("filetype_settings"),
+    callback = function()
+        local ft = vim.bo.filetype
+        if ft == "css" or ft == "scss" then
+            vim.wo.foldmethod = "marker"
+            vim.wo.foldmarker = ","
+        elseif ft == "python" then
+            vim.wo.foldmethod = "indent"
+            vim.bo.expandtab = true
+            vim.bo.shiftwidth = 4
+            vim.bo.tabstop = 4
+            vim.wo.colorcolumn = "80"
+        elseif ft == "markdown" then
+            vim.wo.list = false
+        elseif ft == "vim" then
+            vim.wo.foldmethod = "indent"
+            vim.bo.keywordprg = ":help"
+        elseif ft == "c" or ft == "h" then
+            vim.bo.expandtab = false
+            vim.bo.tabstop = 8
+            vim.bo.shiftwidth = 8
+        elseif ft == "ruby" then
+            vim.wo.foldmethod = "expr"
+        elseif ft == "sh" then
+            vim.wo.foldmethod = "syntax"
+        elseif ft == "make" then
+            vim.bo.expandtab = false
+            vim.bo.tabstop = 4
+            vim.bo.shiftwidth = 4
+        end
+    end,
+})
+
+-- Highlight on yank
+vim.api.nvim_create_autocmd("TextYankPost", {
+    group = augroup("highlight_yank"),
+    callback = function()
+        vim.highlight.on_yank({ higroup = "IncSearch", timeout = 150, on_visual = true })
+    end,
+})

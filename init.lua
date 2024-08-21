@@ -7,6 +7,12 @@
 --  ╚═╝  ╚═══╝  | - https://antenore.simbiosi.org
 --   ૮ ⚆ﻌ⚆ა     | - Partly based from https://github.com/ttys3/nvim-config.git
 --  ===== Before everything else ===============================================
+-- Profiling
+--vim.cmd[[
+--  profile start profile.log
+--  profile func *
+--  profile file *
+--]]
 if vim.fn.has('win64') == 1 then
   -- vim.opt.shell='bash.exe'
   -- vim.opt.shellcmdflag = '-c'

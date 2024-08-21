@@ -1,225 +1,114 @@
-require "utils"
+local lspconfig = require('lspconfig')
+local util = require('lspconfig/util')
+local mason = require("mason")
+local mason_lspconfig = require("mason-lspconfig")
+local cmp_nvim_lsp = require('cmp_nvim_lsp')
 
-local util = require 'lspconfig/util'
--- {{{ ===== lsp-colors.nvim ====================================================
-require("lsp-colors").setup({})
--- }}}
--- -- {{{ ===== nvim-lsp-installer =================================================
--- require("nvim-lsp-installer").setup({
---     automatic_installation = true,
---     ui = {
---         icons = {
---             server_installed = "✓",
---             server_pending = "➜",
---             server_uninstalled = "✗",
---         }
---     }
--- })
-
-require("mason").setup {
-	ui = {
-		icons = {
-			package_installed = "✓",
-			package_pending = "➜",
-			package_uninstalled = "✗",
-		}
-	}
-}
-require("mason-lspconfig").setup {
-	ensure_installed = {
-		'lua_ls',
-		'cmake',
-		'jsonls',
-		'solargraph',
-		'eslint',
-		'tsserver',
-		'vimls',
-		'bashls',
-		'marksman',
-		'prosemd_lsp',
-		'jedi_language_server',
-		-- 'puppet',
-		'terraformls',
-		'yamlls',
-		'html',
-	},
-	automatic_installation = true,
+-- Set up Mason
+mason.setup {
+    ui = {
+        icons = {
+            package_installed = "✓",
+            package_pending = "➜",
+            package_uninstalled = "✗",
+        }
+    }
 }
 
--- Mappings.
--- See `:help vim.diagnostic.*` for documentation on any of the below functions
+-- Set up Mason-LSPconfig
+mason_lspconfig.setup {
+    ensure_installed = {
+        'lua_ls', 'cmake', 'jsonls', 'solargraph', 'vimls', 'bashls',
+        'prosemd_lsp', 'jedi_language_server', 'yamlls', 'html'
+    },
+    automatic_installation = true,
+}
+
+-- Mappings
 local opts = { noremap=true, silent=true }
-nnoremap {'<leader>e', '<cmd>lua vim.diagnostic.open_float()<CR>', silent=true }
-nnoremap {'[d', '<cmd>lua vim.diagnostic.goto_prev()<CR>', silent=true }
-nnoremap {']d', '<cmd>lua vim.diagnostic.goto_next()<CR>', silent=true }
-nnoremap {'<leader>q', '<cmd>lua vim.diagnostic.setloclist()<CR>', silent=true }
+vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float, opts)
+vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, opts)
+vim.keymap.set('n', ']d', vim.diagnostic.goto_next, opts)
+vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, opts)
 
--- Use an on_attach function to only map the following keys
--- after the language server attaches to the current buffer
+-- On-attach function
 local on_attach = function(_, bufnr)
-	-- Enable completion triggered by <c-x><c-o>
-	-- vim.api.nvim_buf_set_option(bufnr, 'omnifunc', 'v:lua.vim.lsp.omnifunc')
-
-	-- Mappings.
-	-- See `:help vim.lsp.*` for documentation on any of the below functions
-	local bufopt = { buffer=bufnr, silent=true }
-	nnoremap { 'gD', '<cmd>lua vim.lsp.buf.declaration()<CR>',bufopt }
-	nnoremap { 'gd', '<cmd>lua vim.lsp.buf.definition()<CR>',bufopt }
-	nnoremap { 'K', '<cmd>lua vim.lsp.buf.hover()<CR>',bufopt }
-	nnoremap { 'gi', '<cmd>lua vim.lsp.buf.implementation()<CR>',bufopt }
-	nnoremap { '<C-k>', '<cmd>lua vim.lsp.buf.signature_help()<CR>',bufopt }
-	nnoremap { '<leader>wa', '<cmd>lua vim.lsp.buf.add_workspace_folder()<CR>',bufopt }
-	nnoremap { '<leader>wr', '<cmd>lua vim.lsp.buf.remove_workspace_folder()<CR>',bufopt }
-	nnoremap { '<leader>wl', '<cmd>lua print(vim.inspect(vim.lsp.buf.list_workspace_folders()))<CR>',bufopt }
-	nnoremap { '<leader>D', '<cmd>lua vim.lsp.buf.type_definition()<CR>',bufopt }
-	nnoremap { '<leader>rn', '<cmd>lua vim.lsp.buf.rename()<CR>',bufopt }
-	nnoremap { '<leader>ca', '<cmd>lua vim.lsp.buf.code_action()<CR>',bufopt }
-	nnoremap { 'gr', '<cmd>lua vim.lsp.buf.references()<CR>',bufopt }
-	nnoremap { '<leader>f','<cmd>lua vim.lsp.buf.formatting()<CR>',bufopt }
+    local bufopts = { buffer=bufnr, silent=true }
+    vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, bufopts)
+    vim.keymap.set('n', 'gd', vim.lsp.buf.definition, bufopts)
+    vim.keymap.set('n', 'K', vim.lsp.buf.hover, bufopts)
+    vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, bufopts)
+    vim.keymap.set('n', '<C-k>', vim.lsp.buf.signature_help, bufopts)
+    vim.keymap.set('n', '<leader>wa', vim.lsp.buf.add_workspace_folder, bufopts)
+    vim.keymap.set('n', '<leader>wr', vim.lsp.buf.remove_workspace_folder, bufopts)
+    vim.keymap.set('n', '<leader>wl', function() print(vim.inspect(vim.lsp.buf.list_workspace_folders())) end, bufopts)
+    vim.keymap.set('n', '<leader>D', vim.lsp.buf.type_definition, bufopts)
+    vim.keymap.set('n', '<leader>rn', vim.lsp.buf.rename, bufopts)
+    vim.keymap.set('n', '<leader>ca', vim.lsp.buf.code_action, bufopts)
+    vim.keymap.set('n', 'gr', vim.lsp.buf.references, bufopts)
+    vim.keymap.set('n', '<leader>f', function() vim.lsp.buf.format { async = true } end, bufopts)
 end
 
-local capabilities = require('cmp_nvim_lsp').default_capabilities(vim.lsp.protocol.make_client_capabilities())
+-- Capabilities
+local capabilities = cmp_nvim_lsp.default_capabilities(vim.lsp.protocol.make_client_capabilities())
 
-local lspconfig = require('lspconfig')
+-- Set up LSP servers
+local servers = {
+    'lua_ls', 'cmake', 'jsonls', 'solargraph', 'vimls', 'bashls',
+    'prosemd_lsp', 'jedi_language_server', 'yamlls', 'html'
+}
 
-local servers = { 'cmake', 'jsonls', 'solargraph', 'eslint', 'tsserver', 'vimls', 'bashls', 'marksman' }
 for _, lsp in ipairs(servers) do
-  lspconfig[lsp].setup {
+    lspconfig[lsp].setup {
+        on_attach = on_attach,
+        capabilities = capabilities,
+    }
+end
+
+-- Special configurations
+lspconfig.clangd.setup{ capabilities = capabilities }
+
+require("clangd_extensions").setup{ capabilities = capabilities }
+
+lspconfig.lua_ls.setup{
     on_attach = on_attach,
     capabilities = capabilities,
-  }
-end
-
-lspconfig.clangd.setup{
-  -- on_attach = on_attach,
-  capabilities = capabilities
-}
-
-require("clangd_extensions").setup{
-  -- on_attach = on_attach,
-  capabilities = capabilities
-}
-
--- Lua
-lspconfig.lua_ls.setup{
-  on_attach = on_attach,
-  capabilities = capabilities,
-  settings = {
-    Lua = {
-			--[[
-			runtime = {
-				-- Tell the language server which version of Lua you're using (most likely LuaJIT in the case of Neovim)
-				version = 'LuaJIT',
-				path = vim.split(package.path, ";")
-			},
-			]]--
-      diagnostics = {
-        -- Get the language server to recognize the `vim` global
-        globals = {'vim' },
+    settings = {
+        Lua = {
+            diagnostics = { globals = {'vim'} },
+            workspace = { library = vim.api.nvim_get_runtime_file("", true) },
+            telemetry = { enable = false },
         },
-      workspace = {
-        -- Make the server aware of Neovim runtime files
-        library = vim.api.nvim_get_runtime_file("", true),
-				--library = {[vim.fn.expand("$VIMRUNTIME/lua")] = true, [vim.fn.expand("$VIMRUNTIME/lua/vim/lsp")] = true}
-        },
-      -- Do not send telemetry data containing a randomized but unique identifier
-      telemetry = {
-        enable = false,
-        },
-      },
     },
 }
 
 lspconfig.prosemd_lsp.setup{
-  on_attach = on_attach,
-  capabilities = capabilities,
+    on_attach = on_attach,
+    capabilities = capabilities,
     cmd = { vim.fn.expand("$HOME/.cargo/bin/prosemd-lsp"), "--stdio" },
     filetypes = { "markdown" },
-    root_dir = function(fname)
-      return util.find_git_ancestor(fname) or vim.fn.getcwd()
-    end,
-    settings = {},
+    root_dir = util.find_git_ancestor,
 }
 
---[[
-if vim.fn.has("win64") == 1 then
-	lspconfig.puppet.setup {
-		on_attach = on_attach,
-		capabilities = capabilities,
-		-- DEBUG add '--stdio', '--debug=/tmp/puppet-lsp-debug.log'
-		command = { "ruby" },
-		args = { vim.fn.expand("$HOME\\software\\puppet-editor-services\\puppet-languageserver"), '--stdio' },
-		filetypes = { 'puppet' },
-		root_dir = function(fname)
-			local root_files = {
-				"manifests",
-				"metadata.json",
-				".git"
-			}
-			return util.root_pattern(unpack(root_files))(fname) or util.path.dirname(fname)
-		end,
-	}
-else
-	lspconfig.puppet.setup {
-		on_attach = on_attach,
-		capabilities = capabilities,
-		-- DEBUG add '--stdio', '--debug=/tmp/puppet-lsp-debug.log'
-		cmd = { vim.fn.expand("$HOME/software/puppet-editor-services/puppet-languageserver"), '--stdio' },
-		filetypes = { 'puppet' },
-		root_dir = function(fname)
-			local root_files = {
-				"manifests",
-				"metadata.json",
-				".git"
-			}
-			return util.root_pattern(unpack(root_files))(fname) or util.path.dirname(fname)
-		end,
-	}
-end
-]]--
+lspconfig.pyright.setup { on_attach = on_attach }
 
--- Python
---lspconfig.jedi_language_server.setup {
---	on_attach = on_attach
---}
-lspconfig.pyright.setup {
-	on_attach = on_attach
-}
---lspconfig.ruff_lsp.setup {
---  on_attach = on_attach,
---  init_options = {
---    settings = {
---      -- Any extra CLI arguments for `ruff` go here.
---      args = {},
---    }
---  }
---}
--- terraform
 lspconfig.terraformls.setup{
-	--cmd = { "terraform-ls", "serve" },
-  on_attach = on_attach,
-	root_dir = function(fname)
-		return util.find_git_ancestor(fname) or vim.fn.getcwd()
-	end,
-  capabilities = capabilities
+    on_attach = on_attach,
+    root_dir = util.find_git_ancestor,
+    capabilities = capabilities
 }
-local buf_group = vim.api.nvim_create_augroup(
-	"BufGroup",
-	{ clear = true }
-)
+
+-- Autoformat Terraform files
 vim.api.nvim_create_autocmd({"BufWritePre"}, {
-	group = buf_group,
-  pattern = {"*.tf", "*.tfvars"},
-  callback = function ()
-		vim.lsp.buf.format()
-	end
+    pattern = {"*.tf", "*.tfvars"},
+    callback = function() vim.lsp.buf.format() end,
 })
 
 -- Enable diagnostics
 vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(
-  vim.lsp.diagnostic.on_publish_diagnostics, {
-    virtual_text = true,
-    signs = true,
-    update_in_insert = true,
-  }
+    vim.lsp.diagnostic.on_publish_diagnostics, {
+        virtual_text = true,
+        signs = true,
+        update_in_insert = true,
+    }
 )
