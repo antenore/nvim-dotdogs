@@ -27,11 +27,13 @@ sudo pacman -S gcc make cmake
 **Ubuntu/Debian:**
 ```bash
 # Core requirements
-sudo apt update
+sudo apt update && sudo apt upgrade
+# neovim > 0.10 is required
+sudo add-apt-repository ppa:neovim-ppa/unstable -y
 sudo apt install neovim git curl unzip nodejs npm python3 python3-pip ripgrep fd-find
 
 # Optional but recommended
-sudo apt install fortune-mod ctags silversearcher-ag fzf lazygit
+sudo apt install fortune-mod exuberant-ctags silversearcher-ag fzf
 
 # For clipboard support
 sudo apt install xclip wl-clipboard-tools
