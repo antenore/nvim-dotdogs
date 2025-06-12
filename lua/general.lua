@@ -76,8 +76,37 @@ opt.foldlevelstart = 99
 opt.textwidth = 0
 opt.colorcolumn = "87"
 
--- Clipboard setting
--- opt.clipboard = vim.fn.exists("$TMUX") == 1 and "unnamedplus" or "unnamedplus"
+-- Clipboard - WSL support
+local function is_wsl()
+  local version = io.open("/proc/version", "r")
+  if version then
+    local content = version:read("*all")
+    version:close()
+    return content:lower():find("microsoft") ~= nil
+  end
+  return false
+end
+
+if is_wsl() then
+  -- WSL clipboard support using PowerShell
+  vim.g.clipboard = {
+    name = 'WslClipboard',
+    copy = {
+      ['+'] = 'clip.exe',
+      ['*'] = 'clip.exe',
+    },
+    paste = {
+      ['+'] = 'powershell.exe -c [Console]::Out.Write($(Get-Clipboard -Raw).tostring().replace("`r", ""))',
+      ['*'] = 'powershell.exe -c [Console]::Out.Write($(Get-Clipboard -Raw).tostring().replace("`r", ""))',
+    },
+    cache_enabled = 0,
+  }
+  
+  -- URL opening for WSL - use Windows default browser
+  vim.g.netrw_browsex_viewer = "cmd.exe /c start"
+else
+  opt.clipboard = "unnamedplus"  -- Use system clipboard for non-WSL
+end
 
 -- Set browsedir if supported
 if vim.fn.has('browse') == 1 then

@@ -202,15 +202,12 @@ require("lazy").setup({
   },
 
   {
-    "Exafunction/windsurf.nvim",
-    dependencies = {
-        "nvim-lua/plenary.nvim",
-        "hrsh7th/nvim-cmp",
-    },
-    config = function()
-        require("codeium").setup({
-        })
-    end
+      "Exafunction/windsurf.nvim",
+      dependencies = {
+          "nvim-lua/plenary.nvim",
+          "hrsh7th/nvim-cmp",
+      },
+      config = function() require('config.codeium') end,
   },
 
   -- Misc utilities

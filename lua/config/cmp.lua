@@ -25,6 +25,7 @@ function M.setup()
 		luasnip       = '[Snip]',
 		emoji         = '[Emoji]',
 		zsh           = '[Zsh]',
+                codeium       = '[AI]',
 	}
 
 	local kind_icons = {
@@ -88,6 +89,7 @@ function M.setup()
             end
         },
         sources = cmp.config.sources({
+            { name = 'codeium' },
             { name = 'nvim_lsp' },
             { name = 'nvim_lsp_signature_help' },
             { name = 'luasnip' },
