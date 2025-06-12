@@ -1,15 +1,19 @@
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
-if not vim.loop.fs_stat(lazypath) then
-  vim.fn.system({
-    "git",
-    "clone",
-    "--filter=blob:none",
-    "https://github.com/folke/lazy.nvim.git",
-    "--branch=stable", -- latest stable release
-    lazypath,
-  })
+-- vim.loop is going to be deprecated in favor vim.uv
+if not (vim.uv or vim.loop).fs_stat(lazypath) then
+  local lazyrepo = "https://github.com/folke/lazy.nvim.git"
+  local out = vim.fn.system({ "git", "clone", "--filter=blob:none", "--branch=stable", lazyrepo, lazypath })
+  if vim.v.shell_error ~= 0 then
+    vim.api.nvim_echo({
+      { "Failed to clone lazy.nvim:\n", "ErrorMsg" },
+      { out, "WarningMsg" },
+      { "\nPress any key to exit..." },
+    }, true, {})
+    vim.fn.getchar()
+    os.exit(1)
+  end
 end
-vim.opt.runtimepath:prepend(lazypath)
+vim.opt.rtp:prepend(lazypath)
 
 require("lazy").setup({
   -- Core plugins
@@ -40,6 +44,12 @@ require("lazy").setup({
     config = function() require('config.treesitter') end,
   },
   {
+    'HiPhish/rainbow-delimiters.nvim',
+    config = function()
+      require('rainbow-delimiters.setup').setup{}
+    end
+  },
+  {
     'nathom/filetype.nvim',
     config = function()
       require("filetype").setup {
@@ -65,7 +75,6 @@ require("lazy").setup({
               [".zlogout"] = "zsh",
               ["*.zsh*"] = "zsh",
               [".kshrc"] = "sh",
-              ["*.ksh*"] = "sh",
               [".profile"] = "sh",
               ["PKGBUILD"] = "sh",
           },
@@ -192,6 +201,18 @@ require("lazy").setup({
     config = function() require('config.indent-blanklines') end,
   },
 
+  {
+    "Exafunction/windsurf.nvim",
+    dependencies = {
+        "nvim-lua/plenary.nvim",
+        "hrsh7th/nvim-cmp",
+    },
+    config = function()
+        require("codeium").setup({
+        })
+    end
+  },
+
   -- Misc utilities
   { 'neomake/neomake', cmd = 'Neomake' },
   {
@@ -212,13 +233,12 @@ require("lazy").setup({
       }
     end
   },
-  --{ vim.fn.expand("$HOME/software/myvim/plugins/mdview.nvim") },
 
   -- Formerly null-ls, now none-ls
   {
     'nvimtools/none-ls.nvim',
     config = function() require('config.none-ls') end,
-  },
+    },
 })
 
 -- Additional configurations

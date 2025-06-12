@@ -1,7 +1,7 @@
 --  ============================================================================
 --  ███╗   ██╗  | My Neovim dot(dogs)files
 --  ████╗  ██║  | Use it at your own risk, before to ask questions, RTFM.
---  ██╔██╗ ██║  | To quit this file type :q
+--  ██╔██╗ ██║  | To quit this file type :q
 --  ██║╚██╗██║  | License: Apache 2.0
 --  ██║ ╚████║  | Copyleft Antenore (tmow) Gatta 2022 — ∞
 --  ╚═╝  ╚═══╝  | - https://antenore.simbiosi.org
@@ -41,7 +41,8 @@ for _, module in ipairs(modules) do
   err = nil
 end
 --  ===== Mapping ==============================================================
-vim.cmd [[autocmd BufWritePost general.lua source <afile> | Lazy install]]
-vim.cmd [[autocmd BufWritePost plugins.lua source <afile> | Lazy install]]
+-- Lazy plugin does not support reload on save for now
+--vim.cmd [[autocmd BufWritePost general.lua source <afile> | Lazy install]]
+--vim.cmd [[autocmd BufWritePost plugins.lua source <afile> | Lazy install]]
 -- ================================== EOF ======================================
 -- vim:set ts=2 sts=2 sw=2 expandtab:

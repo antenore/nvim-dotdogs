@@ -109,4 +109,3 @@ vim.cmd('command Lgs execute "lua require\'telescope.builtin\'.grep_string()<CR>
 -- nnoremap <leader>fg <cmd>lua require('telescope.builtin').live_grep()<cr>
 -- nnoremap <leader>fb <cmd>lua require('telescope.builtin').buffers()<cr>
 -- nnoremap <leader>fh <cmd>lua require('telescope.builtin').help_tags()<cr>
-

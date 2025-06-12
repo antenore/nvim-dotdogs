@@ -92,7 +92,7 @@ ins_left {
 ins_left {
   -- mode component
   function()
-    return ''
+    return ''
   end,
   color = function()
     -- auto change color according to neovims mode
@@ -100,13 +100,13 @@ ins_left {
       n = colors.red,
       i = colors.green,
       v = colors.blue,
-      [''] = colors.blue,
+      [''] = colors.blue,
       V = colors.blue,
       c = colors.magenta,
       no = colors.red,
       s = colors.orange,
       S = colors.orange,
-      [''] = colors.orange,
+      [''] = colors.orange,
       ic = colors.yellow,
       R = colors.violet,
       Rv = colors.violet,
@@ -142,7 +142,7 @@ ins_left { 'progress', color = { fg = colors.fg, gui = 'bold' } }
 ins_left {
   'diagnostics',
   sources = { 'nvim_diagnostic' },
-  symbols = { error = ' ', warn = ' ', info = ' ' },
+  symbols = { error = ' ', warn = ' ', info = ' ' },
   diagnostics_color = {
     color_error = { fg = colors.red },
     color_warn = { fg = colors.yellow },
@@ -175,7 +175,7 @@ ins_left {
     end
     return msg
   end,
-  icon = ' LSP:',
+  icon = ' LSP:',
   color = { fg = '#ffffff', gui = 'bold' },
 }
 
@@ -196,14 +196,14 @@ ins_right {
 
 ins_right {
   'branch',
-  icon = '',
+  icon = '',
   color = { fg = colors.violet, gui = 'bold' },
 }
 
 ins_right {
   'diff',
   -- Is it me or the symbol for modified us really weird
-  symbols = { added = ' ', modified = '柳 ', removed = ' ' },
+  symbols = { added = ' ', modified = '柳 ', removed = ' ' },
   diff_color = {
     added = { fg = colors.green },
     modified = { fg = colors.orange },
@@ -223,4 +223,3 @@ ins_right {
 -- Now don't forget to initialize lualine
 lualine.setup(config)
 -- }}}
-
