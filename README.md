@@ -48,16 +48,16 @@ sudo apt install build-essential cmake
 ### Language Servers (Auto-installed via Mason)
 
 The following LSP servers are automatically installed:
-- `lua_ls` - Lua Language Server
-- `pylsp` - Python LSP Server
-- `cmake` - CMake Language Server
-- `jsonls` - JSON Language Server
-- `yamlls` - YAML Language Server
-- `html` - HTML Language Server
-- `bashls` - Bash Language Server
-- `vimls` - VimScript Language Server
-- `solargraph` - Ruby Language Server
-- `prosemd_lsp` - Markdown Language Server (requires Rust/Cargo)
+* `lua_ls` — Lua Language Server
+* `pylsp` — Python LSP Server
+* `cmake` — CMake Language Server
+* `jsonls` — JSON Language Server
+* `yamlls` — YAML Language Server
+* `html` — HTML Language Server
+* `bashls` — Bash Language Server
+* `vimls` — VimScript Language Server
+* `solargraph` — Ruby Language Server
+* `prosemd_lsp` — Markdown Language Server (requires Rust/Cargo)
 
 ### Additional Tools
 
@@ -103,42 +103,42 @@ Then press `i` to install servers, or they'll auto-install when opening relevant
 
 ## Key Features
 
-- **LSP Integration** - Full language server support with diagnostics
-- **Autocompletion** - nvim-cmp with multiple sources
-- **Fuzzy Finding** - Telescope for files, grep, and more
-- **Syntax Highlighting** - Treesitter with modern parsing
-- **File Explorer** - nvim-tree for project navigation
-- **Git Integration** - Gitsigns for git status in editor
-- **Status Line** - Custom lualine configuration
-- **Custom Dashboard** - Alpha.nvim with ASCII art
+* **LSP Integration** — Full language server support with diagnostics
+* **Autocompletion** — nvim-cmp with multiple sources
+* **Fuzzy Finding** — Telescope for files, grep, and more
+* **Syntax Highlighting** — Treesitter with modern parsing
+* **File Explorer** — nvim-tree for project navigation
+* **Git Integration** — Gitsigns for git status in editor
+* **Status Line** — Custom lualine configuration
+* **Custom Dashboard** — Alpha.nvim with ASCII art
 
 ## Key Mappings
 
 ### Leader Key: `<Space>`
 
 **File Operations:**
-- `<leader>f` - Find files (Telescope)
-- `<leader>t` - Live grep (Telescope)
-- `<leader>r` - Recent files (Telescope)
+* `<leader>f` — Find files (Telescope)
+* `<leader>t` — Live grep (Telescope)
+* `<leader>r` — Recent files (Telescope)
 
 **LSP:**
-- `<leader>e` - Show diagnostics float
-- `<leader>ca` - Code actions
-- `<leader>rn` - Rename symbol
-- `<leader>f` - Format buffer
-- `gd` - Go to definition
-- `gr` - Go to references
-- `K` - Show hover information
+* `<leader>e` — Show diagnostics float
+* `<leader>ca` — Code actions
+* `<leader>rn` — Rename symbol
+* `<leader>f` — Format buffer
+* `gd` — Go to definition
+* `gr` — Go to references
+* `K` — Show hover information
 
 **Diagnostics:**
-- `<leader>dt` - Toggle virtual text diagnostics
-- `<leader>dd` - Disable diagnostics for buffer
-- `<leader>de` - Enable diagnostics for buffer
-- `<leader>lr` - Restart LSP
-- `[d` / `]d` - Navigate diagnostics
+* `<leader>dt` — Toggle virtual text diagnostics
+* `<leader>dd` — Disable diagnostics for buffer
+* `<leader>de` — Enable diagnostics for buffer
+* `<leader>lr` — Restart LSP
+* `[d` / `]d` — Navigate diagnostics
 
 **Navigation:**
-- `<leader>q` - Add diagnostics to location list
+* `<leader>q` — Add diagnostics to location list
 
 ## Configuration Structure
 
