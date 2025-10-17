@@ -181,16 +181,16 @@ require("lazy").setup({
 
   -- Colorscheme and visual enhancements
   { 'rktjmp/lush.nvim' },
-   {
-    'mcchrish/zenbones.nvim',
-    dependencies = { 'rktjmp/lush.nvim' },
-    config = function()
-      vim.g.zenbones_darkness = "warm"
-      vim.g.zenbones_lightness = "dim"
-      vim.opt.termguicolors = true
-      vim.opt.background = "dark"
-      vim.cmd('colorscheme tokyobones')
-    end
+  {
+   'mcchrish/zenbones.nvim',
+   dependencies = { 'rktjmp/lush.nvim' },
+   config = function()
+     --vim.g.zenbones_darkness = "warm"
+     --vim.g.zenbones_lightness = "dim"
+     vim.opt.termguicolors = true
+     vim.opt.background = "dark"
+     vim.cmd('colorscheme tokyobones')
+   end
   },
   {
     'norcalli/nvim-colorizer.lua',
