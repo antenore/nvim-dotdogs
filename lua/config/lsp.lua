@@ -142,6 +142,9 @@ lspconfig.lua_ls.setup{
       runtime = {
         version = 'LuaJIT'
       },
+      diagnostics = {
+        globals = { 'vim' }
+      },
       workspace = {
         checkThirdParty = false,
         library = {
@@ -152,7 +155,21 @@ lspconfig.lua_ls.setup{
     })
   end,
   settings = {
-    Lua = {}
+    Lua = {
+      runtime = {
+        version = 'LuaJIT'
+      },
+      diagnostics = {
+        globals = { 'vim' }
+      },
+      workspace = {
+        checkThirdParty = false,
+        library = {
+          vim.env.VIMRUNTIME,
+          "${3rd}/luv/library"
+        }
+      }
+    }
   }
 }
 
