@@ -48,6 +48,30 @@ vim.diagnostic.config({
   },
 })
 
+-- On-attach function (MUST be defined BEFORE mason handlers)
+local on_attach = function(client, bufnr)
+    local bufopts = { buffer=bufnr, silent=true }
+    vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, bufopts)
+    vim.keymap.set('n', 'gd', vim.lsp.buf.definition, bufopts)
+    vim.keymap.set('n', 'K', vim.lsp.buf.hover, bufopts)
+    vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, bufopts)
+    vim.keymap.set('n', '<C-k>', vim.lsp.buf.signature_help, bufopts)
+    vim.keymap.set('n', '<leader>wa', vim.lsp.buf.add_workspace_folder, bufopts)
+    vim.keymap.set('n', '<leader>wr', vim.lsp.buf.remove_workspace_folder, bufopts)
+    vim.keymap.set('n', '<leader>wl', function() print(vim.inspect(vim.lsp.buf.list_workspace_folders())) end, bufopts)
+    vim.keymap.set('n', '<leader>D', vim.lsp.buf.type_definition, bufopts)
+    vim.keymap.set('n', '<leader>rn', vim.lsp.buf.rename, bufopts)
+    vim.keymap.set('n', '<leader>ca', vim.lsp.buf.code_action, bufopts)
+    vim.keymap.set('n', 'gr', vim.lsp.buf.references, bufopts)
+    vim.keymap.set('n', '<leader>f', function() vim.lsp.buf.format { async = true } end, bufopts)
+
+    -- Context-aware document highlighting (disabled)
+    -- require('config.context-highlight').enable_lsp_document_highlight(client, bufnr)
+end
+
+-- Capabilities (MUST be defined BEFORE mason handlers)
+local capabilities = cmp_nvim_lsp.default_capabilities(vim.lsp.protocol.make_client_capabilities())
+
 -- Set up Mason-LSPconfig
 mason_lspconfig.setup {
     ensure_installed = {
@@ -55,6 +79,46 @@ mason_lspconfig.setup {
         'prosemd_lsp', 'pylsp', 'yamlls', 'html'
     },
     automatic_installation = true,
+    -- Handlers for automatic setup
+    handlers = {
+        -- Default handler for most servers
+        function(server_name)
+            -- Skip servers with special configurations below
+            local skip_servers = { "pylsp", "prosemd_lsp", "terraformls", "clangd" }
+            for _, skip in ipairs(skip_servers) do
+                if server_name == skip then
+                    return
+                end
+            end
+
+            -- Default setup for all other servers
+            lspconfig[server_name].setup {
+                on_attach = on_attach,
+                capabilities = capabilities,
+            }
+        end,
+
+        -- Special handler for lua_ls
+        ["lua_ls"] = function()
+            lspconfig.lua_ls.setup{
+                on_attach = on_attach,
+                capabilities = capabilities,
+                settings = {
+                    Lua = {
+                        runtime = { version = 'LuaJIT' },
+                        diagnostics = { globals = { 'vim' } },
+                        workspace = {
+                            checkThirdParty = false,
+                            library = {
+                                vim.env.VIMRUNTIME,
+                                "${3rd}/luv/library"
+                            }
+                        }
+                    }
+                }
+            }
+        end,
+    },
 }
 
 -- Diagnostic toggle function
@@ -76,27 +140,6 @@ local function toggle_virtual_text()
   print("Virtual text diagnostics: " .. (virtual_text_enabled and "enabled" or "disabled"))
 end
 
--- On-attach function (MUST be defined before use)
-local on_attach = function(_, bufnr)
-    local bufopts = { buffer=bufnr, silent=true }
-    vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, bufopts)
-    vim.keymap.set('n', 'gd', vim.lsp.buf.definition, bufopts)
-    vim.keymap.set('n', 'K', vim.lsp.buf.hover, bufopts)
-    vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, bufopts)
-    vim.keymap.set('n', '<C-k>', vim.lsp.buf.signature_help, bufopts)
-    vim.keymap.set('n', '<leader>wa', vim.lsp.buf.add_workspace_folder, bufopts)
-    vim.keymap.set('n', '<leader>wr', vim.lsp.buf.remove_workspace_folder, bufopts)
-    vim.keymap.set('n', '<leader>wl', function() print(vim.inspect(vim.lsp.buf.list_workspace_folders())) end, bufopts)
-    vim.keymap.set('n', '<leader>D', vim.lsp.buf.type_definition, bufopts)
-    vim.keymap.set('n', '<leader>rn', vim.lsp.buf.rename, bufopts)
-    vim.keymap.set('n', '<leader>ca', vim.lsp.buf.code_action, bufopts)
-    vim.keymap.set('n', 'gr', vim.lsp.buf.references, bufopts)
-    vim.keymap.set('n', '<leader>f', function() vim.lsp.buf.format { async = true } end, bufopts)
-end
-
--- Capabilities
-local capabilities = cmp_nvim_lsp.default_capabilities(vim.lsp.protocol.make_client_capabilities())
-
 -- Diagnostic mappings
 local opts = { noremap=true, silent=true }
 vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float, opts)
@@ -108,20 +151,7 @@ vim.keymap.set('n', '<leader>dd', function() vim.diagnostic.enable(false, { bufn
 vim.keymap.set('n', '<leader>de', function() vim.diagnostic.enable(true, { bufnr = 0 }) end, { noremap = true, silent = true, desc = "Enable diagnostics for buffer" })
 vim.keymap.set('n', '<leader>lr', function() vim.cmd('LspRestart') end, { noremap = true, silent = true, desc = "Restart LSP" })
 
--- Set up LSP servers
-local servers = {
-    'lua_ls', 'cmake', 'jsonls', 'solargraph', 'vimls', 'bashls',
-    'prosemd_lsp', 'yamlls', 'html'
-}
-
-for _, lsp in ipairs(servers) do
-    lspconfig[lsp].setup {
-        on_attach = on_attach,
-        capabilities = capabilities,
-    }
-end
-
--- Special configurations
+-- Special LSP configurations (Mason handlers above set up the rest)
 lspconfig.clangd.setup{ 
     on_attach = on_attach,
     capabilities = capabilities 
@@ -129,49 +159,7 @@ lspconfig.clangd.setup{
 
 require("clangd_extensions").setup{ capabilities = capabilities }
 
-lspconfig.lua_ls.setup{
-    on_attach = on_attach,
-    capabilities = capabilities,
-    on_init = function(client)
-    local path = client.workspace_folders[1].name
-    if vim.loop.fs_stat(path..'/.luarc.json') or vim.loop.fs_stat(path..'/.luarc.jsonc') then
-      return
-    end
-
-    client.config.settings.Lua = vim.tbl_deep_extend('force', client.config.settings.Lua, {
-      runtime = {
-        version = 'LuaJIT'
-      },
-      diagnostics = {
-        globals = { 'vim' }
-      },
-      workspace = {
-        checkThirdParty = false,
-        library = {
-          vim.env.VIMRUNTIME,
-          "${3rd}/luv/library"
-        }
-      }
-    })
-  end,
-  settings = {
-    Lua = {
-      runtime = {
-        version = 'LuaJIT'
-      },
-      diagnostics = {
-        globals = { 'vim' }
-      },
-      workspace = {
-        checkThirdParty = false,
-        library = {
-          vim.env.VIMRUNTIME,
-          "${3rd}/luv/library"
-        }
-      }
-    }
-  }
-}
+-- lua_ls is configured via Mason handler above
 
 lspconfig.prosemd_lsp.setup{
     on_attach = on_attach,
@@ -194,7 +182,7 @@ lspconfig.pylsp.setup {
                 autopep8 = { enabled = false },
                 yapf = { enabled = false },
                 pylsp_mypy = { enabled = false },
-                jedi_completion = { 
+                jedi_completion = {
                     enabled = true,
                     include_params = true,
                     include_class_objects = true,

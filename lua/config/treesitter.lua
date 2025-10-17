@@ -9,7 +9,9 @@ require'nvim-treesitter.configs'.setup {
     ignore_install = { "latex" },
     highlight = {
         enable = true,
-        disable = { "latex" }
+        disable = { "latex" },
+        -- Use minimal highlighting - let context-highlight handle the rest
+        additional_vim_regex_highlights = false,
 	},
     incremental_selection = {
         enable = true,
@@ -22,3 +24,14 @@ require'nvim-treesitter.configs'.setup {
     },
     indent = { enable = true },
 }
+
+-- Context-aware highlighting (disabled - see lua/plugins/context-highlight/ for info)
+-- require('config.context-highlight').setup({
+--     minimal_highlights = {
+--         strings = true,
+--         comments = true,
+--         numbers = false,
+--         booleans = false,
+--         keywords = false,
+--     },
+-- })
