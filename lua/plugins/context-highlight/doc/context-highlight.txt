@@ -1,0 +1,549 @@
+*context-highlight.txt*  Context-aware syntax highlighting for Neovim
+
+Author:  Antenore Gatta
+License: MIT (see |context-highlight-license|)
+
+==============================================================================
+CONTENTS                                           *context-highlight-contents*
+
+    1. Introduction ..................... |context-highlight-introduction|
+    2. Requirements ..................... |context-highlight-requirements|
+    3. Installation ..................... |context-highlight-installation|
+    4. Configuration .................... |context-highlight-configuration|
+    5. Usage ............................ |context-highlight-usage|
+    6. Commands ......................... |context-highlight-commands|
+    7. Highlight Groups ................. |context-highlight-highlights|
+    8. How It Works ..................... |context-highlight-how-it-works|
+    9. LSP Integration .................. |context-highlight-lsp|
+    10. Scope Detection ................. |context-highlight-scope|
+    11. Debugging ....................... |context-highlight-debugging|
+    12. Performance ..................... |context-highlight-performance|
+    13. Limitations ..................... |context-highlight-limitations|
+    14. Contributing .................... |context-highlight-contributing|
+    15. License ......................... |context-highlight-license|
+
+==============================================================================
+1. INTRODUCTION                                *context-highlight-introduction*
+
+context-highlight.nvim implements hybrid context-aware highlighting:
+
+Philosophy: "If everything is highlighted, nothing stands out."
+
+Features:~
+  • Multi-level scope-based dimming (innermost brightest, outer dimmer)
+  • Symbol reference highlighting (LSP or TreeSitter)
+  • Automatic color scheme integration (dark/light themes)
+  • Minimal syntax highlighting within active scope
+
+==============================================================================
+2. REQUIREMENTS                                *context-highlight-requirements*
+
+Required:~
+  • Neovim >= 0.9.0
+  • nvim-treesitter
+  • TreeSitter parser for target language (`:TSInstall <lang>`)
+
+Optional:~
+  • LSP server with `textDocument/documentHighlight` support
+    (lua_ls, ts_server, rust-analyzer, pyright, gopls, etc.)
+
+==============================================================================
+3. INSTALLATION                                *context-highlight-installation*
+
+lazy.nvim:~
+>lua
+    {
+      dir = "~/.config/nvim/lua/plugins/context-highlight",
+      dependencies = { "nvim-treesitter/nvim-treesitter" },
+      config = function()
+        require('plugins.context-highlight').setup({
+          enabled = true,
+          debounce_ms = 100,
+          dim_opacity = 0.7,
+        })
+      end,
+    }
+<
+
+packer.nvim:~
+>lua
+    use {
+      '~/.config/nvim/lua/plugins/context-highlight',
+      requires = { 'nvim-treesitter/nvim-treesitter' },
+      config = function()
+        require('plugins.context-highlight').setup()
+      end
+    }
+<
+
+vim-plug:~
+>vim
+    Plug 'nvim-treesitter/nvim-treesitter'
+    Plug '~/.config/nvim/lua/plugins/context-highlight'
+<
+>lua
+    require('plugins.context-highlight').setup()
+<
+
+Native package manager:~
+>bash
+    mkdir -p ~/.local/share/nvim/site/pack/plugins/start
+    ln -s ~/.config/nvim/lua/plugins/context-highlight \
+          ~/.local/share/nvim/site/pack/plugins/start/
+<
+
+==============================================================================
+4. CONFIGURATION                              *context-highlight-configuration*
+
+                                                   *context-highlight.setup()*
+setup({opts})
+    Initialize plugin with configuration options.
+
+    Parameters:~
+      {opts} (table|nil) Configuration options
+
+    Default configuration:~
+>lua
+    {
+      enabled = true,
+      debounce_ms = 100,
+      dim_opacity = 0.7,
+      use_lsp = true,
+      lsp_fallback_to_treesitter = true,
+      differentiate_read_write = true,
+    }
+<
+
+Configuration Options:~
+
+                                              *context-highlight.config.enabled*
+enabled (boolean)
+    Enable/disable plugin.
+    Default: `true`
+
+                                          *context-highlight.config.debounce_ms*
+debounce_ms (number)
+    Milliseconds to wait after cursor stops moving before updating.
+    Lower = more responsive, higher = less CPU usage.
+    Recommended: 50-200
+    Default: `100`
+
+                                          *context-highlight.config.dim_opacity*
+dim_opacity (number)
+    Dimming intensity for out-of-scope code (0.0 - 1.0).
+    0.0 = maximum dimming (darkest)
+    1.0 = no dimming (full brightness)
+
+    This value affects all dimming levels proportionally:
+    • Heavy dim (outside all scopes): dim_opacity * 0.5
+    • Medium dim (outer scopes): dim_opacity * 0.7
+    • Light dim (parent scope): dim_opacity * 0.85
+    • No dim (innermost scope): 1.0 (always full brightness)
+
+    Recommended values:
+    • 0.3-0.4: Maximum focus mode
+    • 0.5-0.6: Aggressive dimming
+    • 0.7: Balanced (default)
+    • 0.8: Subtle dimming
+    • 0.9+: Very subtle
+
+    Default: `0.7`
+
+                                              *context-highlight.config.use_lsp*
+use_lsp (boolean)
+    Use LSP `textDocument/documentHighlight` when available.
+    More accurate than TreeSitter text matching.
+    Default: `true`
+
+                               *context-highlight.config.lsp_fallback_to_treesitter*
+lsp_fallback_to_treesitter (boolean)
+    When LSP unavailable or unsupported, fall back to TreeSitter.
+    Set to `false` to disable symbol highlighting when LSP unavailable.
+    Default: `true`
+
+                            *context-highlight.config.differentiate_read_write*
+differentiate_read_write (boolean)
+    Use different colors for read vs write symbol references (LSP only).
+    • Read: Blue-ish background
+    • Write: Orange-ish background
+    Default: `true`
+
+Applying Configuration Changes:~
+
+Configuration changes require module reload or Neovim restart:
+>lua
+    package.loaded['plugins.context-highlight'] = nil
+    package.loaded['plugins.context-highlight.config'] = nil
+    package.loaded['plugins.context-highlight.highlight'] = nil
+    require('plugins.context-highlight').setup({dim_opacity=0.3})
+<
+
+==============================================================================
+5. USAGE                                              *context-highlight-usage*
+
+The plugin activates automatically on cursor movement. No manual commands
+needed for normal operation.
+
+Toggle highlighting:~
+>lua
+    require('plugins.context-highlight').toggle()
+<
+
+Keybinding example:~
+>lua
+    vim.keymap.set('n', '<F6>', function()
+      require('plugins.context-highlight').toggle()
+    end, { desc = 'Toggle context highlighting' })
+<
+
+==============================================================================
+6. COMMANDS                                        *context-highlight-commands*
+
+                                           *context-highlight.update_highlighting()*
+update_highlighting()
+    Manually update highlighting based on current cursor position.
+    Normally called automatically via autocmds.
+
+                                                      *context-highlight.enable()*
+enable()
+    Explicitly enable plugin and update highlighting.
+
+                                                     *context-highlight.disable()*
+disable()
+    Disable plugin and clear all highlights.
+
+                                                      *context-highlight.toggle()*
+toggle()
+    Toggle plugin enabled/disabled state.
+
+                                                       *context-highlight.debug()*
+debug()
+    Print detailed debug information:
+    • Plugin enabled status
+    • Current buffer number
+    • Dim opacity setting
+    • LSP client availability
+    • TreeSitter availability
+    • Node hierarchy at cursor
+    • Current scope hierarchy
+    • Configuration state
+
+==============================================================================
+7. HIGHLIGHT GROUPS                            *context-highlight-highlights*
+
+Auto-generated highlight groups (based on current colorscheme):
+
+                                           *hl-ContextHighlightDimHeavy*
+ContextHighlightDimHeavy
+    Applied to code outside all scopes (darkest dimming).
+    Opacity: dim_opacity * 0.5
+
+                                          *hl-ContextHighlightDimMedium*
+ContextHighlightDimMedium
+    Applied to outer/grandparent scopes.
+    Opacity: dim_opacity * 0.7
+
+                                           *hl-ContextHighlightDimLight*
+ContextHighlightDimLight
+    Applied to parent scope.
+    Opacity: dim_opacity * 0.85
+
+                                            *hl-ContextHighlightSymbol*
+ContextHighlightSymbol
+    Symbol under cursor (TreeSitter mode).
+    Style: bold + underline
+
+                                        *hl-ContextHighlightSymbolRead*
+ContextHighlightSymbolRead
+    Symbol read reference (LSP mode).
+    Style: blue-ish background
+
+                                       *hl-ContextHighlightSymbolWrite*
+ContextHighlightSymbolWrite
+    Symbol write reference (LSP mode).
+    Style: orange-ish background + underline
+
+Colors are auto-detected from your current colorscheme and recalculated
+when colorscheme changes (ColorScheme autocmd).
+
+==============================================================================
+8. HOW IT WORKS                              *context-highlight-how-it-works*
+
+Hybrid Implementation:~
+
+A. Multi-Level Dimming:
+   1. Get TreeSitter node at cursor position
+   2. Walk up AST to collect all containing scopes
+   3. Create scope hierarchy: [innermost, parent, grandparent, ...]
+   4. For each line, determine which scope it belongs to
+   5. Apply appropriate dimming level based on scope distance from cursor
+
+B. Symbol Highlighting:
+   1. Get TreeSitter node at cursor position
+   2. Check if it's an identifier (variable, function name, etc.)
+   3. Extract symbol text
+   4. Use LSP documentHighlight or traverse TreeSitter AST
+   5. Highlight all occurrences with high-priority extmarks
+
+C. Color Scheme Integration:
+   1. Read Normal highlight group for current background color
+   2. Use bitwise RGB manipulation to calculate dimmed variants
+   3. For dark themes: reduce RGB values (darken)
+   4. For light themes: increase RGB values (lighten)
+   5. Apply dimmed backgrounds via extmarks
+
+==============================================================================
+9. LSP INTEGRATION                                    *context-highlight-lsp*
+
+LSP Mode (default, preferred):~
+
+When `use_lsp = true` and LSP client supports `textDocument/documentHighlight`:
+  • Semantic symbol highlighting (not text matching)
+  • Respects language scopes
+  • Different symbols with same name treated correctly
+  • Read vs Write differentiation:
+    - Blue background for reads (accessing variable)
+    - Orange background for writes (assignments, declarations)
+
+Supported LSP servers:~
+  lua_ls, ts_server, rust-analyzer, pyright, gopls, and others
+  that implement `textDocument/documentHighlight`
+
+Fallback Behavior:~
+
+When LSP unavailable:
+  • If `lsp_fallback_to_treesitter = true`: Use TreeSitter text matching
+  • If `lsp_fallback_to_treesitter = false`: No symbol highlighting
+
+TreeSitter Fallback Limitations:~
+  • Text-based matching only
+  • Cannot distinguish between different variables with same name
+  • No read/write differentiation
+  • Still useful when LSP unavailable
+
+Checking LSP Availability:~
+>vim
+    :LspInfo
+<
+>lua
+    require('plugins.context-highlight').debug()
+<
+
+==============================================================================
+10. SCOPE DETECTION                               *context-highlight-scope*
+
+TreeSitter node types recognized as scopes:
+
+Exact matches (common across languages):~
+  function_definition, function_declaration
+  method_definition
+  class_definition, class_declaration
+  if_statement, for_statement, while_statement, do_statement
+  repeat_statement, block, lambda, closure, chunk
+
+Lua-specific:~
+  function, local_function
+  for_in_statement, for_numeric_statement
+
+Pattern matches (fallback):~
+  Any node ending in: _statement, _function, _method, _class, _block
+
+Scope Hierarchy:~
+
+Scopes are collected from cursor outward:
+>
+    [innermost, parent, grandparent, ..., outermost]
+<
+
+Example:~
+>
+    function outer()           ← Level 3 (grandparent)
+      for i = 1, 10 do         ← Level 2 (parent)
+        if condition then      ← Level 1 (innermost) ← cursor here
+          print(i)
+        end
+      end
+    end
+<
+
+Adding Language Support:~
+
+Edit `lua/plugins/context-highlight/scope.lua`:
+1. Add node types to SCOPE_NODE_TYPES table
+2. Or rely on pattern matching (usually works automatically)
+
+Testing scope detection:~
+>lua
+    require('plugins.context-highlight').debug()
+<
+
+==============================================================================
+11. DEBUGGING                                  *context-highlight-debugging*
+
+Debug command:~
+>lua
+    require('plugins.context-highlight').debug()
+<
+
+Shows:~
+  • Plugin enabled status
+  • Current buffer number
+  • Dim opacity setting
+  • LSP client availability and name
+  • TreeSitter availability and language
+  • Node hierarchy at cursor position
+  • Current scope hierarchy
+  • Configuration state
+
+Manual testing:~
+>lua
+    require('plugins.context-highlight').update_highlighting()
+<
+
+Check TreeSitter availability:~
+>lua
+    print(pcall(vim.treesitter.get_parser, 0))
+<
+
+Check node under cursor:~
+>lua
+    local node = vim.treesitter.get_node()
+    print(node and node:type())
+<
+
+Check active extmarks:~
+>lua
+    local ns = vim.api.nvim_create_namespace('context_highlight_dim')
+    print(#vim.api.nvim_buf_get_extmarks(0, ns, 0, -1, {}))
+<
+
+Verify highlight colors:~
+>lua
+    print(vim.api.nvim_get_hl(0, {name='ContextHighlightDimHeavy'}).bg)
+<
+
+Check autocmds:~
+>vim
+    :au ContextHighlight
+<
+
+Reload module:~
+>lua
+    package.loaded['plugins.context-highlight'] = nil
+    package.loaded['plugins.context-highlight.config'] = nil
+    package.loaded['plugins.context-highlight.highlight'] = nil
+    require('plugins.context-highlight').setup()
+<
+
+Troubleshooting:~
+
+"No dimming visible"
+  • Check enabled: `:lua print(require('plugins.context-highlight').config.enabled)`
+  • Verify TreeSitter parser: `:TSInstall <lang>`
+  • Ensure termguicolors: `:set termguicolors`
+  • Check extmarks created (see above)
+
+"Dimming too subtle"
+  • Try extreme values: `dim_opacity = 0.3` (very dark)
+  • Restart Neovim after config changes
+  • Colors calculated during setup()
+
+"Symbol highlighting not working"
+  • Check LSP: `:LspInfo`
+  • Try TreeSitter fallback: `use_lsp = false`
+  • Cursor must be on identifier
+  • Run debug command
+
+==============================================================================
+12. PERFORMANCE                              *context-highlight-performance*
+
+Optimizations:~
+  • TreeSitter AST traversal: O(log n)
+  • Debouncing prevents excessive updates during rapid cursor movement
+  • Extmarks more efficient than match highlights
+  • Symbol search uses single tree traversal
+
+Recommendations for large files (>5000 lines):~
+  • Increase debounce: `debounce_ms = 200-500`
+  • Consider disabling in very large files
+
+Performance characteristics:~
+  • Scope hierarchy calculation: O(log n) - fast
+  • Line iteration for dimming: O(n) - scales with file size
+  • Symbol search: O(n) - single tree traversal
+  • LSP documentHighlight: Async, non-blocking
+
+==============================================================================
+13. LIMITATIONS                              *context-highlight-limitations*
+
+Known limitations:~
+
+1. Requires TreeSitter parser for language
+   Won't work on unsupported filetypes.
+
+2. Scope detection depends on TreeSitter node types
+   Some language-specific constructs may not be recognized.
+   Solution: Add to SCOPE_NODE_TYPES in scope.lua
+
+3. Dimming is line-based, not character-based
+   A statement spanning multiple scopes dims inconsistently.
+   Character-based dimming would be slower.
+
+4. Symbol highlighting limitations:
+   • LSP mode: Requires LSP server with documentHighlight support
+   • TreeSitter fallback: Text matching only, no scope awareness
+   • No rename refactoring (visual highlighting only)
+
+5. Performance with very large files (>10,000 lines)
+   Multi-level dimming iterates all lines on cursor move.
+   Increase debounce_ms for large files.
+
+6. Color calculation assumes RGB format
+   Requires `termguicolors` enabled.
+   May not work with terminal colors (cterm).
+
+7. Configuration changes require restart or manual reload
+   Colors cached during setup().
+
+==============================================================================
+14. CONTRIBUTING                            *context-highlight-contributing*
+
+Contributions welcome. See CONTRIBUTING.md in plugin directory.
+
+Areas for improvement:~
+  • Additional language support (scope node types)
+  • Performance optimizations for large files
+  • Character-based dimming option
+  • Configurable symbol highlight colors
+  • Scope boundary visual indicators
+
+Bug reports:~
+  Include output from `:lua require('plugins.context-highlight').debug()`
+
+==============================================================================
+15. LICENSE                                      *context-highlight-license*
+
+MIT License
+
+Copyright (c) 2025 Antenore Gatta
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+==============================================================================
+vim:tw=78:ts=8:ft=help:norl:

@@ -1,3 +1,6 @@
+-- Copyright (c) 2025 Antenore Gatta
+-- Licensed under the MIT License. See LICENSE file in the project root for details.
+
 -- LSP integration for context-highlight plugin
 -- Provides semantic symbol highlighting using LSP documentHighlight
 

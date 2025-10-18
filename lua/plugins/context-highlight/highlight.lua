@@ -1,3 +1,6 @@
+-- Copyright (c) 2025 Antenore Gatta
+-- Licensed under the MIT License. See LICENSE file in the project root for details.
+
 -- Highlighting logic for context-highlight plugin
 -- Handles color scheme integration, dimming, and TreeSitter-based symbol highlighting
 

@@ -1,3 +1,6 @@
+-- Copyright (c) 2025 Antenore Gatta
+-- Licensed under the MIT License. See LICENSE file in the project root for details.
+
 -- Test file for context highlighting plugin
 -- This demonstrates multi-level scope dimming + symbol highlighting
 
