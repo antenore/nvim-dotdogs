@@ -206,9 +206,11 @@ require("lazy").setup({
 
   -- Colorscheme and visual enhancements
   { 'rktjmp/lush.nvim' },
-   {
+  {
     'mcchrish/zenbones.nvim',
     dependencies = { 'rktjmp/lush.nvim' },
+    lazy = false,
+    priority = 1000,
     config = function()
       vim.g.zenbones_darkness = "warm"
       vim.g.zenbones_lightness = "dim"
