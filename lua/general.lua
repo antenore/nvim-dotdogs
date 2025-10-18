@@ -153,8 +153,8 @@ for i = 1, 9 do
 end
 map("n", "<leader>0", ":10b<CR>", { desc = "Switch to buffer 10" })
 
--- Context highlighting toggle (disabled)
--- map("n", "<F6>", function() require('config.context-highlight').toggle() end, { desc = "Toggle context highlighting" })
+-- Context highlighting toggle
+map("n", "<F6>", function() require('plugins.context-highlight').toggle() end, { desc = "Toggle context highlighting" })
 
 -- Autocommands
 local function augroup(name)

@@ -24,14 +24,3 @@ require'nvim-treesitter.configs'.setup {
     },
     indent = { enable = true },
 }
-
--- Context-aware highlighting (disabled - see lua/plugins/context-highlight/ for info)
--- require('config.context-highlight').setup({
---     minimal_highlights = {
---         strings = true,
---         comments = true,
---         numbers = false,
---         booleans = false,
---         keywords = false,
---     },
--- })
