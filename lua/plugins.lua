@@ -58,10 +58,16 @@ require("lazy").setup({
         enabled = true,
         debounce_ms = 100,
         dim_opacity = 0.6,  -- How dim out-of-scope code appears (0.0=max dim, 1.0=no dim)
+
+        -- LSP integration (NEW!)
+        use_lsp = true,  -- Use LSP documentHighlight when available
+        lsp_fallback_to_treesitter = true,  -- Fallback to TreeSitter if LSP unavailable
+        differentiate_read_write = true,  -- Different colors for read vs write
+
         minimal_highlights = {
           keywords = true,    -- Highlight if/for/return/etc
-          operators = true,  -- Highlight +, -, =, etc
-          strings = true,    -- Highlight string literals
+          operators = true,   -- Highlight +, -, =, etc
+          strings = true,     -- Highlight string literals
           numbers = false,    -- Highlight number literals
           comments = false,   -- Highlight comments
         },

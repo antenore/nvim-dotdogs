@@ -23,9 +23,21 @@ FEATURES
    - When cursor is on an identifier (variable, function name, etc.)
    - Highlights ALL occurrences across the entire file
    - Works even in dimmed areas - symbols stand out through dimming
-   - Bold + underline styling for visibility
+   - TWO MODES:
+     a) LSP-based (semantic, scope-aware, read vs write detection)
+     b) TreeSitter-based (text matching fallback)
 
-3. Color Scheme Integration
+3. LSP Integration (NEW!)
+   - Uses LSP textDocument/documentHighlight when available
+   - Semantic symbol highlighting (not just text matching)
+   - Respects language scopes (same variable name in different functions = different symbols)
+   - Read vs Write differentiation:
+     * Blue background for reads (accessing variable)
+     * Orange background for writes (assignments, declarations)
+   - Automatic fallback to TreeSitter if LSP unavailable
+   - Works with: lua_ls, ts_server, rust-analyzer, pyright, gopls, etc.
+
+4. Color Scheme Integration
    - Automatically detects your current theme's background color
    - Calculates dimmed colors proportionally (not hardcoded overlays)
    - Works seamlessly with both dark and light themes
@@ -86,9 +98,14 @@ v3: CURRENT - Hybrid approach with multi-level dimming + symbol highlighting + t
 STRUCTURE
 ---------
 lua/plugins/context-highlight/
-├── init.lua          Main module with TreeSitter-based highlighting
-├── test.lua          Test file for manual verification
-└── README.txt        This file
+├── init.lua          Main module (coordinator, orchestrates other modules)
+├── config.lua        Configuration defaults
+├── scope.lua         Scope detection using TreeSitter
+├── highlight.lua     Highlighting + dimming + color scheme integration
+├── lsp.lua           LSP integration for semantic symbol highlighting
+├── test.lua          Comprehensive test file
+├── README.txt        This file (text version)
+└── README.md         Markdown version (for GitHub/standalone plugin)
 
 
 USAGE
@@ -98,9 +115,15 @@ In lua/plugins.lua:
 require('plugins.context-highlight').setup({
     enabled = true,
     debounce_ms = 100,
-    dim_opacity = 0.6,    -- How dim out-of-scope code appears (0.0-1.0)
+    dim_opacity = 0.7,    -- How dim out-of-scope code appears (0.0-1.0)
                           -- Higher = less dimming (more visible)
-                          -- Recommended: 0.5-0.7
+                          -- Recommended: 0.5-0.7 (0.3-0.4 for max focus)
+
+    -- LSP integration (NEW!)
+    use_lsp = true,  -- Use LSP documentHighlight when available
+    lsp_fallback_to_treesitter = true,  -- Fallback to TreeSitter if LSP unavailable
+    differentiate_read_write = true,  -- Use different colors for read vs write
+
     minimal_highlights = {
         keywords = true,     -- Highlight if/for/return/function/etc
         operators = true,    -- Highlight +, -, =, etc
@@ -169,7 +192,7 @@ debounce_ms (number)
   Recommended: 50-200
 
 dim_opacity (number)
-  Default: 0.6
+  Default: 0.7 (changed from 0.6 in config.lua)
   Controls dimming intensity (0.0 = maximum dimming, 1.0 = no dimming)
   This value affects all dimming levels proportionally:
   - Heavy dim (outside all scopes): dim_opacity * 0.5
@@ -178,10 +201,41 @@ dim_opacity (number)
   - No dim (innermost scope): 1.0 (always fully visible)
 
   Recommended values:
-  - 0.5: Aggressive dimming - maximum focus
-  - 0.6: Moderate dimming - good balance (default)
-  - 0.7: Subtle dimming - more context visible
-  - 0.8+: Very subtle - minimal dimming
+  - 0.3-0.4: Maximum focus mode - very dark (best for testing visibility)
+  - 0.5-0.6: Aggressive dimming - strong focus
+  - 0.7: Balanced dimming - good default
+  - 0.8: Subtle dimming - more context visible
+  - 0.9+: Very subtle - minimal dimming
+
+  IMPORTANT: Visual differences between adjacent values (0.5 vs 0.6) are subtle.
+  To verify the setting is working, test extreme values like 0.3 or 0.9.
+
+  Applying config changes:
+  1. Edit dim_opacity in lua/plugins.lua
+  2. Restart Neovim (colors calculated during plugin initialization)
+  3. Or reload manually:
+     :lua package.loaded['plugins.context-highlight'] = nil
+     :lua package.loaded['plugins.context-highlight.config'] = nil
+     :lua package.loaded['plugins.context-highlight.highlight'] = nil
+     :lua require('plugins.context-highlight').setup({dim_opacity=0.3})
+
+use_lsp (boolean)
+  Default: true
+  Enable LSP-based symbol highlighting when available
+  Uses textDocument/documentHighlight LSP method
+  More accurate than TreeSitter text matching
+
+lsp_fallback_to_treesitter (boolean)
+  Default: true
+  When LSP unavailable or unsupported, fall back to TreeSitter highlighting
+  Set to false to disable symbol highlighting entirely when LSP not available
+
+differentiate_read_write (boolean)
+  Default: true
+  Use different colors for read vs write symbol references (LSP only)
+  - Read: Blue-ish background
+  - Write: Orange-ish background
+  Set to false to use same color for all symbol references
 
 minimal_highlights (table)
   Controls what's highlighted within the active scope:
@@ -197,7 +251,9 @@ Highlight groups (auto-generated in setup_highlights()):
 - ContextHighlightDimHeavy: Outside all scopes (darkest)
 - ContextHighlightDimMedium: Outer/grandparent scopes
 - ContextHighlightDimLight: Parent scope
-- ContextHighlightSymbol: Symbol under cursor (bold + underline)
+- ContextHighlightSymbol: Symbol under cursor (TreeSitter mode, bold + underline)
+- ContextHighlightSymbolRead: Symbol read reference (LSP mode, blue background)
+- ContextHighlightSymbolWrite: Symbol write reference (LSP mode, orange background + underline)
 - @keyword, @operator, @string, @number, @comment: TreeSitter groups
   (configured based on minimal_highlights settings)
 
@@ -290,7 +346,7 @@ How it works:
 5. Apply appropriate dimming level based on scope depth
 
 Adding support for other languages:
-- Add node types to SCOPE_NODE_TYPES table in init.lua:31
+- Add node types to SCOPE_NODE_TYPES table in scope.lua
 - Or rely on pattern matching (usually works automatically)
 
 
@@ -303,8 +359,10 @@ This will show:
 - Plugin enabled status
 - Current buffer number
 - Dim opacity setting
+- LSP client availability and name
 - TreeSitter availability and language
-- Current scope line range
+- Node hierarchy at cursor position
+- Current scope hierarchy
 - Minimal highlights configuration
 
 Manual testing:
@@ -316,15 +374,46 @@ Test if TreeSitter is available:
 Check node under cursor:
 :lua local node = vim.treesitter.get_node(); print(node and node:type())
 
-Check active extmarks:
-:lua vim.inspect(vim.api.nvim_buf_get_extmarks(0, vim.api.nvim_create_namespace('context_highlight_dim'), 0, -1, {}))
+Check active extmarks (count and verify they exist):
+:lua print(#vim.api.nvim_buf_get_extmarks(0, vim.api.nvim_create_namespace('context_highlight_dim'), 0, -1, {}))
+
+Verify highlight colors:
+:lua print(string.format("Heavy: %s, Medium: %s, Light: %s",
+  vim.inspect(vim.api.nvim_get_hl(0, {name='ContextHighlightDimHeavy'})),
+  vim.inspect(vim.api.nvim_get_hl(0, {name='ContextHighlightDimMedium'})),
+  vim.inspect(vim.api.nvim_get_hl(0, {name='ContextHighlightDimLight'}))))
 
 Reload module after changes:
 :lua package.loaded['plugins.context-highlight'] = nil
-:lua require('plugins.context-highlight').setup()
+:lua package.loaded['plugins.context-highlight.config'] = nil
+:lua package.loaded['plugins.context-highlight.highlight'] = nil
+:lua require('plugins.context-highlight').setup({dim_opacity=0.3})
 
 Check if autocmds are registered:
 :au ContextHighlight
+
+TROUBLESHOOTING:
+
+"Changing dim_opacity doesn't change anything"
+  - Visual differences between adjacent values (0.5 vs 0.6 vs 0.7) are subtle
+  - Test with extreme values: 0.3 (very dark) vs 0.9 (very bright)
+  - Verify config is loaded: :lua print(require('plugins.context-highlight').config.dim_opacity)
+  - Check highlight colors (should be different for each value):
+    :lua print(vim.api.nvim_get_hl(0, {name='ContextHighlightDimHeavy'}).bg)
+  - Restart Neovim to ensure fresh initialization
+  - Colors are calculated during setup() - changes require reload
+
+"No dimming visible at all"
+  - Check if plugin is enabled: :lua print(require('plugins.context-highlight').config.enabled)
+  - Verify TreeSitter parser installed: :TSInstall lua
+  - Check extmarks are created: see "Check active extmarks" above
+  - Ensure termguicolors is enabled: :set termguicolors
+
+"Symbol highlighting not working"
+  - Check if LSP is available: :LspInfo
+  - Try TreeSitter fallback: set use_lsp = false in config
+  - Cursor must be on an identifier (variable, function name, etc.)
+  - Use :lua require('plugins.context-highlight').debug() to check LSP client
 
 
 PERFORMANCE
@@ -338,15 +427,16 @@ PERFORMANCE
 TODO / FUTURE ENHANCEMENTS
 ---------------------------
 - Add option to toggle symbol highlighting independently from scope dimming
-- Make symbol highlight color configurable (currently hardcoded)
+- Make symbol highlight colors configurable (currently hardcoded in highlight.lua)
 - Support character-based dimming instead of line-based (more granular)
 - Add option to show current scope name in statusline
 - Consider CursorHold mode for less aggressive updates (reduce CPU)
 - Add visual indicator for scope boundaries (subtle separator lines)
 - Add configuration for max scope depth to dim (currently unlimited)
-- LSP integration for semantic symbol highlighting (read vs write)
 - Add option to exclude certain file types or buffer types
 - Performance optimization for very large files (>5000 lines)
+- Add command to force highlight regeneration without restart
+- Consider caching scope hierarchy to avoid recalculation on every cursor move
 
 
 KNOWN LIMITATIONS
@@ -354,18 +444,26 @@ KNOWN LIMITATIONS
 - Requires TreeSitter parser for language (won't work on unsupported filetypes)
 - Scope detection depends on TreeSitter node types
   → Some language-specific constructs may not be recognized as scopes
-  → Add to SCOPE_NODE_TYPES or rely on pattern matching
+  → Add to SCOPE_NODE_TYPES table in scope.lua or rely on pattern matching
 - Dimming is line-based (entire lines dimmed, not character-based)
   → A single statement spanning multiple scopes dims inconsistently
-- Symbol highlighting matches by text only
-  → Doesn't distinguish between different variables with same name in different scopes
-  → No semantic understanding (rename refactoring not supported)
+  → Character-based dimming would be more granular but much slower
+- Symbol highlighting limitations:
+  → LSP mode (default): Requires LSP server with documentHighlight support
+  → TreeSitter fallback: Matches by text only, doesn't distinguish between
+    different variables with same name in different scopes
+  → No rename refactoring support (only visual highlighting)
 - May have performance issues with very large files (>10,000 lines)
   → Multi-level dimming iterates over all lines on every cursor move
-  → Consider increasing debounce_ms for large files
+  → Consider increasing debounce_ms for large files (200-500ms)
+  → Scope hierarchy calculation is fast (O(log n)) but line iteration is O(n)
 - Color calculation assumes RGB color format
   → May not work with terminal colors (cterm)
-  → Requires termguicolors enabled
+  → Requires termguicolors enabled (:set termguicolors)
+  → Works best with true color terminals
+- Configuration changes require Neovim restart or manual module reload
+  → Colors calculated during setup() and cached
+  → Future: add :ContextHighlightReload command
 
 
 VISUAL EXAMPLE
@@ -398,8 +496,12 @@ Config files:
 - lua/general.lua:157 - F6 keymap for toggle
 - lua/config/treesitter.lua - TreeSitter configuration
 
-Related files:
-- lua/plugins/context-highlight/init.lua - Main plugin code
+Plugin files (modular structure):
+- lua/plugins/context-highlight/init.lua - Main coordinator
+- lua/plugins/context-highlight/config.lua - Configuration defaults
+- lua/plugins/context-highlight/scope.lua - Scope detection (TreeSitter)
+- lua/plugins/context-highlight/highlight.lua - Highlighting + dimming
+- lua/plugins/context-highlight/lsp.lua - LSP integration
 - lua/plugins/context-highlight/test.lua - Comprehensive test file
 - lua/plugins/context-highlight/README.txt - This file
 
@@ -413,6 +515,14 @@ Neovim APIs used:
 - vim.api.nvim_buf_clear_namespace() - Clear highlights
 - vim.api.nvim_create_augroup() - Create autocommand group
 - vim.api.nvim_create_autocmd() - Setup cursor movement handlers
+
+LSP APIs used:
+- vim.lsp.get_clients() - Get active LSP clients for buffer
+- client.supports_method() - Check if LSP supports documentHighlight
+- client.request() - Make async LSP request
+- vim.lsp.util.make_text_document_params() - Create LSP params
+- vim.lsp.protocol.DocumentHighlightKind - Read/Write/Text enum
+- vim.schedule() - Schedule highlight application on main loop
 
 TreeSitter APIs:
 - parser:parse() - Parse buffer into syntax tree
