@@ -45,6 +45,11 @@ local function adjust_color(color, factor)
     b = math.floor(b + (255 - b) * (1 - factor))
   end
 
+  -- Clamp values to valid range [0, 255]
+  r = math.min(255, math.max(0, r))
+  g = math.min(255, math.max(0, g))
+  b = math.min(255, math.max(0, b))
+
   -- Combine back to single number
   return r * 65536 + g * 256 + b
 end
@@ -75,10 +80,10 @@ function M.setup_highlights(config)
     bg = string.format("#%06x", dim_light),
   })
 
-  -- Symbol highlighting groups - use colorscheme's LSP reference groups
-  -- This ensures compatibility with any colorscheme (light or dark)
+  -- Symbol highlighting groups - use colorscheme's Search groups
+  -- IMPORTANT: Always use Normal fg to ensure visibility on dimmed backgrounds
+  -- Only take bg colors from Search/IncSearch for proper contrast
 
-  -- Get Normal foreground to ensure text is always visible
   local normal_hl = vim.api.nvim_get_hl(0, { name = "Normal" })
   local normal_fg = normal_hl.fg
 
@@ -89,47 +94,47 @@ function M.setup_highlights(config)
   local has_lsp_groups = lsp_ref_text.bg or lsp_ref_text.fg or lsp_ref_text.underline or lsp_ref_text.undercurl
 
   if has_lsp_groups then
-    -- Use colorscheme's LSP reference highlighting, but ensure fg is set
+    -- Use colorscheme's LSP reference highlighting but force Normal fg
     vim.api.nvim_set_hl(0, "ContextHighlightSymbol", {
-      fg = lsp_ref_text.fg or normal_fg,
+      fg = normal_fg,  -- Always use Normal fg for visibility
       bg = lsp_ref_text.bg,
       underline = lsp_ref_text.underline,
       undercurl = lsp_ref_text.undercurl,
       bold = lsp_ref_text.bold,
     })
     vim.api.nvim_set_hl(0, "ContextHighlightSymbolRead", {
-      fg = lsp_ref_read.fg or normal_fg,
+      fg = normal_fg,  -- Always use Normal fg for visibility
       bg = lsp_ref_read.bg,
       underline = lsp_ref_read.underline,
       undercurl = lsp_ref_read.undercurl,
       bold = lsp_ref_read.bold,
     })
     vim.api.nvim_set_hl(0, "ContextHighlightSymbolWrite", {
-      fg = lsp_ref_write.fg or normal_fg,
+      fg = normal_fg,  -- Always use Normal fg for visibility
       bg = lsp_ref_write.bg,
       underline = lsp_ref_write.underline,
       undercurl = lsp_ref_write.undercurl,
       bold = lsp_ref_write.bold,
     })
   else
-    -- Fallback: use Search group colors with explicit fg
+    -- Fallback: use Search group bg colors with Normal fg
     local search_hl = vim.api.nvim_get_hl(0, { name = "Search" })
     local inc_search_hl = vim.api.nvim_get_hl(0, { name = "IncSearch" })
 
     vim.api.nvim_set_hl(0, "ContextHighlightSymbol", {
-      fg = search_hl.fg or normal_fg,
+      fg = normal_fg,  -- Always use Normal fg for visibility
       bg = search_hl.bg,
       underline = search_hl.underline,
       bold = search_hl.bold,
     })
     vim.api.nvim_set_hl(0, "ContextHighlightSymbolRead", {
-      fg = search_hl.fg or normal_fg,
+      fg = normal_fg,  -- Always use Normal fg for visibility
       bg = search_hl.bg,
       underline = search_hl.underline,
       bold = search_hl.bold,
     })
     vim.api.nvim_set_hl(0, "ContextHighlightSymbolWrite", {
-      fg = inc_search_hl.fg or normal_fg,
+      fg = normal_fg,  -- Always use Normal fg for visibility
       bg = inc_search_hl.bg,
       underline = inc_search_hl.underline,
       bold = inc_search_hl.bold,
@@ -323,14 +328,20 @@ function M.highlight_symbol_treesitter(bufnr)
   -- Find and highlight all occurrences
   local occurrences = find_symbol_occurrences(bufnr, symbol_text)
 
+  -- Use extmarks with high priority to ensure symbol highlights appear above dimming
+  -- Dimming uses priorities 100-102, so use 200 for symbols
   for _, occurrence in ipairs(occurrences) do
-    vim.api.nvim_buf_add_highlight(
+    vim.api.nvim_buf_set_extmark(
       bufnr,
       namespace,
-      "ContextHighlightSymbol",
       occurrence.start_row,
       occurrence.start_col,
-      occurrence.end_col
+      {
+        end_row = occurrence.end_row,
+        end_col = occurrence.end_col,
+        hl_group = "ContextHighlightSymbol",
+        priority = 200,  -- Higher than dimming priorities (100-102)
+      }
     )
   end
 end

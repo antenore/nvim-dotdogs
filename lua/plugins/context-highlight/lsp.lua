@@ -68,7 +68,8 @@ function M.highlight_symbol_lsp(bufnr, config, fallback_fn)
       return
     end
 
-    -- Apply highlights from LSP
+    -- Apply highlights from LSP using extmarks with high priority
+    -- This ensures symbol highlights appear above dimming (which uses priorities 100-102)
     vim.schedule(function()
       for _, highlight in ipairs(result) do
         local hl_group = "ContextHighlightSymbol"
@@ -85,15 +86,20 @@ function M.highlight_symbol_lsp(bufnr, config, fallback_fn)
         local range = highlight.range
         local start_line = range.start.line
         local start_char = range.start.character
+        local end_line = range['end'].line
         local end_char = range['end'].character
 
-        vim.api.nvim_buf_add_highlight(
+        vim.api.nvim_buf_set_extmark(
           bufnr,
           namespace,
-          hl_group,
           start_line,
           start_char,
-          end_char
+          {
+            end_row = end_line,
+            end_col = end_char,
+            hl_group = hl_group,
+            priority = 200,  -- Higher than dimming priorities (100-102)
+          }
         )
       end
     end)

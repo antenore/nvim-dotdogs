@@ -138,6 +138,85 @@ function M.disable()
   highlight.clear_highlights(bufnr)
 end
 
+-- Debug function to show colors and extmarks
+function M.debug_colors()
+  local bufnr = vim.api.nvim_get_current_buf()
+
+  print("=== HIGHLIGHT GROUPS & COLORS ===")
+
+  -- Helper to format color
+  local function fmt_color(c)
+    if not c then return "nil" end
+    return string.format("#%06x", c)
+  end
+
+  -- Helper to show highlight group
+  local function show_hl(name)
+    local hl = vim.api.nvim_get_hl(0, { name = name })
+    print(string.format("  %s:", name))
+    print(string.format("    fg=%s bg=%s bold=%s underline=%s",
+      fmt_color(hl.fg), fmt_color(hl.bg),
+      tostring(hl.bold or false), tostring(hl.underline or false)))
+  end
+
+  -- Show all relevant highlight groups
+  print("\nNormal:")
+  show_hl("Normal")
+
+  print("\nDimming:")
+  show_hl("ContextHighlightDimHeavy")
+  show_hl("ContextHighlightDimMedium")
+  show_hl("ContextHighlightDimLight")
+
+  print("\nSymbol Highlighting:")
+  show_hl("ContextHighlightSymbol")
+  show_hl("ContextHighlightSymbolRead")
+  show_hl("ContextHighlightSymbolWrite")
+
+  print("\nColorscheme LSP groups (source):")
+  show_hl("LspReferenceText")
+  show_hl("LspReferenceRead")
+  show_hl("LspReferenceWrite")
+
+  print("\nColorscheme Search groups (fallback):")
+  show_hl("Search")
+  show_hl("IncSearch")
+
+  print("\n=== EXTMARKS AT CURRENT LINE ===")
+  local cursor = vim.api.nvim_win_get_cursor(0)
+  local row = cursor[1] - 1
+
+  -- Check dimming namespace
+  local dim_namespace = vim.api.nvim_create_namespace("context_highlight_dim")
+  local dim_marks = vim.api.nvim_buf_get_extmarks(bufnr, dim_namespace, {row, 0}, {row, -1}, {details = true})
+  if #dim_marks > 0 then
+    print("\nDimming extmarks on line " .. (row + 1) .. ":")
+    for _, mark in ipairs(dim_marks) do
+      local details = mark[4]
+      print(string.format("  priority=%d hl_group=%s", details.priority or 0, details.line_hl_group or details.hl_group or "none"))
+    end
+  end
+
+  -- Check highlight namespace
+  local highlight_namespace = vim.api.nvim_create_namespace("context_highlight")
+  local hl_marks = vim.api.nvim_buf_get_extmarks(bufnr, highlight_namespace, {row, 0}, {row, -1}, {details = true})
+  if #hl_marks > 0 then
+    print("\nSymbol extmarks on line " .. (row + 1) .. ":")
+    for _, mark in ipairs(hl_marks) do
+      local details = mark[4]
+      print(string.format("  col=%d-%d priority=%d hl_group=%s",
+        mark[2], details.end_col or mark[2],
+        details.priority or 0, details.hl_group or "none"))
+    end
+  else
+    print("\nNo symbol extmarks on line " .. (row + 1))
+  end
+
+  print("\n=== BACKGROUND MODE ===")
+  print("vim.o.background:", vim.o.background)
+  print("==============================")
+end
+
 -- Debug function to test manually
 function M.debug()
   local bufnr = vim.api.nvim_get_current_buf()
@@ -198,12 +277,6 @@ function M.debug()
     end
   else
     print("\nNo scopes detected (entire buffer active)")
-  end
-
-  -- Show config
-  print("\nMinimal highlights:")
-  for key, value in pairs(M.config.minimal_highlights) do
-    print("  " .. key .. ":", value)
   end
 
   print("\nAttempting to update highlighting...")

@@ -216,7 +216,7 @@ require("lazy").setup({
       vim.g.zenbones_lightness = "dim"
       vim.opt.termguicolors = true
       vim.opt.background = "dark"
-      vim.cmd('colorscheme tokyobones')
+      vim.cmd('colorscheme zenbones')
     end
   },
   {
