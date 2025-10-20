@@ -1,3 +1,6 @@
+-- Copyright (c) 2025 Antenore Gatta
+-- Licensed under the MIT License. See LICENSE file in the project root for details.
+
 -- Context-aware syntax highlighting using TreeSitter and LSP
 -- Dims code outside current scope, minimally highlights within scope
 -- Philosophy: If everything is highlighted, nothing stands out

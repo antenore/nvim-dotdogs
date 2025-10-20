@@ -1,5 +1,6 @@
-local lspconfig = require('lspconfig')
-local util = require('lspconfig/util')
+-- Removed: lspconfig framework is deprecated in Neovim 0.11+
+-- Now using vim.lsp.config() instead
+local util = require('lspconfig.util')  -- Util functions still available
 local mason = require("mason")
 local mason_lspconfig = require("mason-lspconfig")
 local cmp_nvim_lsp = require('cmp_nvim_lsp')
@@ -91,16 +92,16 @@ mason_lspconfig.setup {
                 end
             end
 
-            -- Default setup for all other servers
-            lspconfig[server_name].setup {
+            -- Default setup for all other servers using new API
+            vim.lsp.config(server_name, {
                 on_attach = on_attach,
                 capabilities = capabilities,
-            }
+            })
         end,
 
         -- Special handler for lua_ls
         ["lua_ls"] = function()
-            lspconfig.lua_ls.setup{
+            vim.lsp.config('lua_ls', {
                 on_attach = on_attach,
                 capabilities = capabilities,
                 settings = {
@@ -116,7 +117,7 @@ mason_lspconfig.setup {
                         }
                     }
                 }
-            }
+            })
         end,
     },
 }
@@ -152,24 +153,24 @@ vim.keymap.set('n', '<leader>de', function() vim.diagnostic.enable(true, { bufnr
 vim.keymap.set('n', '<leader>lr', function() vim.cmd('LspRestart') end, { noremap = true, silent = true, desc = "Restart LSP" })
 
 -- Special LSP configurations (Mason handlers above set up the rest)
-lspconfig.clangd.setup{ 
+vim.lsp.config('clangd', {
     on_attach = on_attach,
-    capabilities = capabilities 
-}
+    capabilities = capabilities
+})
 
 require("clangd_extensions").setup{ capabilities = capabilities }
 
 -- lua_ls is configured via Mason handler above
 
-lspconfig.prosemd_lsp.setup{
+vim.lsp.config('prosemd_lsp', {
     on_attach = on_attach,
     capabilities = capabilities,
     cmd = { vim.fn.expand("$HOME/.cargo/bin/prosemd-lsp"), "--stdio" },
     filetypes = { "markdown" },
     root_dir = util.find_git_ancestor,
-}
+})
 
-lspconfig.pylsp.setup {
+vim.lsp.config('pylsp', {
     on_attach = on_attach,
     capabilities = capabilities,
     settings = {
@@ -195,13 +196,13 @@ lspconfig.pylsp.setup {
             }
         }
     }
-}
+})
 
-lspconfig.terraformls.setup{
+vim.lsp.config('terraformls', {
     on_attach = on_attach,
     root_dir = util.find_git_ancestor,
     capabilities = capabilities
-}
+})
 
 -- Autoformat Terraform files
 vim.api.nvim_create_autocmd({"BufWritePre"}, {

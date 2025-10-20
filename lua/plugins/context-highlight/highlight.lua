@@ -1,3 +1,6 @@
+-- Copyright (c) 2025 Antenore Gatta
+-- Licensed under the MIT License. See LICENSE file in the project root for details.
+
 -- Highlighting logic for context-highlight plugin
 -- Handles color scheme integration, dimming, and TreeSitter-based symbol highlighting
 
@@ -48,8 +51,6 @@ end
 
 -- Setup all highlight groups
 function M.setup_highlights(config)
-  local cfg = config.minimal_highlights
-
   -- Get current background color
   local bg_color = get_normal_bg()
 
@@ -74,88 +75,70 @@ function M.setup_highlights(config)
     bg = string.format("#%06x", dim_light),
   })
 
-  -- Symbol highlighting groups
-  -- Default symbol highlight (TreeSitter fallback or when Read/Write not differentiated)
-  vim.api.nvim_set_hl(0, "ContextHighlightSymbol", {
-    bg = "#504945",  -- Subtle background highlight
-    bold = true,
-    underline = true,
-  })
+  -- Symbol highlighting groups - use colorscheme's LSP reference groups
+  -- This ensures compatibility with any colorscheme (light or dark)
 
-  -- Read reference (LSP)
-  vim.api.nvim_set_hl(0, "ContextHighlightSymbolRead", {
-    bg = "#3d5a6b",  -- Blue-ish background for reads
-    bold = true,
-  })
+  -- Get Normal foreground to ensure text is always visible
+  local normal_hl = vim.api.nvim_get_hl(0, { name = "Normal" })
+  local normal_fg = normal_hl.fg
 
-  -- Write reference (LSP)
-  vim.api.nvim_set_hl(0, "ContextHighlightSymbolWrite", {
-    bg = "#6b5d3f",  -- Orange-ish background for writes
-    bold = true,
-    underline = true,
-  })
+  -- Check if LSP reference groups are defined in the colorscheme
+  local lsp_ref_text = vim.api.nvim_get_hl(0, { name = "LspReferenceText" })
+  local lsp_ref_read = vim.api.nvim_get_hl(0, { name = "LspReferenceRead" })
+  local lsp_ref_write = vim.api.nvim_get_hl(0, { name = "LspReferenceWrite" })
+  local has_lsp_groups = lsp_ref_text.bg or lsp_ref_text.fg or lsp_ref_text.underline or lsp_ref_text.undercurl
 
-  -- Define minimal highlights for active scope
-  -- Make these stand out clearly against dimmed background
-  local highlights = {
-    -- Keywords - bright and bold
-    ["@keyword"] = cfg.keywords and { fg = "#d5c4a1", bold = true } or { fg = "NONE" },
-    ["@keyword.function"] = cfg.keywords and { fg = "#d5c4a1", bold = true } or { fg = "NONE" },
-    ["@keyword.return"] = cfg.keywords and { fg = "#d5c4a1", bold = true } or { fg = "NONE" },
-    ["@keyword.operator"] = cfg.keywords and { fg = "#d5c4a1", bold = true } or { fg = "NONE" },
-    ["@keyword.conditional"] = cfg.keywords and { fg = "#d5c4a1", bold = true } or { fg = "NONE" },
-    ["@keyword.repeat"] = cfg.keywords and { fg = "#d5c4a1", bold = true } or { fg = "NONE" },
+  if has_lsp_groups then
+    -- Use colorscheme's LSP reference highlighting, but ensure fg is set
+    vim.api.nvim_set_hl(0, "ContextHighlightSymbol", {
+      fg = lsp_ref_text.fg or normal_fg,
+      bg = lsp_ref_text.bg,
+      underline = lsp_ref_text.underline,
+      undercurl = lsp_ref_text.undercurl,
+      bold = lsp_ref_text.bold,
+    })
+    vim.api.nvim_set_hl(0, "ContextHighlightSymbolRead", {
+      fg = lsp_ref_read.fg or normal_fg,
+      bg = lsp_ref_read.bg,
+      underline = lsp_ref_read.underline,
+      undercurl = lsp_ref_read.undercurl,
+      bold = lsp_ref_read.bold,
+    })
+    vim.api.nvim_set_hl(0, "ContextHighlightSymbolWrite", {
+      fg = lsp_ref_write.fg or normal_fg,
+      bg = lsp_ref_write.bg,
+      underline = lsp_ref_write.underline,
+      undercurl = lsp_ref_write.undercurl,
+      bold = lsp_ref_write.bold,
+    })
+  else
+    -- Fallback: use Search group colors with explicit fg
+    local search_hl = vim.api.nvim_get_hl(0, { name = "Search" })
+    local inc_search_hl = vim.api.nvim_get_hl(0, { name = "IncSearch" })
 
-    -- Operators - medium brightness
-    ["@operator"] = cfg.operators and { fg = "#bdae93" } or { fg = "NONE" },
-
-    -- Strings - subtle green
-    ["@string"] = cfg.strings and { fg = "#b8bb26", italic = true } or { fg = "NONE" },
-    ["@string.escape"] = cfg.strings and { fg = "#d5c4a1" } or { fg = "NONE" },
-    ["@character"] = cfg.strings and { fg = "#b8bb26" } or { fg = "NONE" },
-
-    -- Numbers - warm orange
-    ["@number"] = cfg.numbers and { fg = "#fe8019" } or { fg = "NONE" },
-    ["@number.float"] = cfg.numbers and { fg = "#fe8019" } or { fg = "NONE" },
-    ["@boolean"] = cfg.numbers and { fg = "#fe8019" } or { fg = "NONE" },
-
-    -- Comments - muted but visible
-    ["@comment"] = cfg.comments and { fg = "#928374", italic = true } or { fg = "NONE" },
-    ["@comment.documentation"] = cfg.comments and { fg = "#a89984", italic = true } or { fg = "NONE" },
-
-    -- Everything else gets NO highlighting
-    ["@variable"] = { fg = "NONE" },
-    ["@variable.builtin"] = { fg = "NONE" },
-    ["@variable.parameter"] = { fg = "NONE" },
-    ["@variable.member"] = { fg = "NONE" },
-    ["@function"] = { fg = "NONE" },
-    ["@function.builtin"] = { fg = "NONE" },
-    ["@function.call"] = { fg = "NONE" },
-    ["@method"] = { fg = "NONE" },
-    ["@method.call"] = { fg = "NONE" },
-    ["@parameter"] = { fg = "NONE" },
-    ["@property"] = { fg = "NONE" },
-    ["@field"] = { fg = "NONE" },
-    ["@type"] = { fg = "NONE" },
-    ["@type.builtin"] = { fg = "NONE" },
-    ["@constructor"] = { fg = "NONE" },
-    ["@constant"] = { fg = "NONE" },
-    ["@constant.builtin"] = { fg = "NONE" },
-    ["@namespace"] = { fg = "NONE" },
-    ["@module"] = { fg = "NONE" },
-    ["@punctuation.bracket"] = { fg = "NONE" },
-    ["@punctuation.delimiter"] = { fg = "NONE" },
-    ["@punctuation.special"] = { fg = "NONE" },
-    ["@tag"] = { fg = "NONE" },
-    ["@tag.attribute"] = { fg = "NONE" },
-    ["@tag.delimiter"] = { fg = "NONE" },
-    ["@label"] = { fg = "NONE" },
-    ["@attribute"] = { fg = "NONE" },
-  }
-
-  for group, opts in pairs(highlights) do
-    vim.api.nvim_set_hl(0, group, opts)
+    vim.api.nvim_set_hl(0, "ContextHighlightSymbol", {
+      fg = search_hl.fg or normal_fg,
+      bg = search_hl.bg,
+      underline = search_hl.underline,
+      bold = search_hl.bold,
+    })
+    vim.api.nvim_set_hl(0, "ContextHighlightSymbolRead", {
+      fg = search_hl.fg or normal_fg,
+      bg = search_hl.bg,
+      underline = search_hl.underline,
+      bold = search_hl.bold,
+    })
+    vim.api.nvim_set_hl(0, "ContextHighlightSymbolWrite", {
+      fg = inc_search_hl.fg or normal_fg,
+      bg = inc_search_hl.bg,
+      underline = inc_search_hl.underline,
+      bold = inc_search_hl.bold,
+    })
   end
+
+  -- No custom syntax highlighting - let colorscheme handle it naturally
+  -- The dimming of out-of-scope code provides sufficient contrast
+  -- This ensures compatibility with any colorscheme (light or dark)
 end
 
 -- Clear all highlights in the current buffer

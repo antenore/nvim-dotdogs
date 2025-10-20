@@ -1,3 +1,6 @@
+-- Copyright (c) 2025 Antenore Gatta
+-- Licensed under the MIT License. See LICENSE file in the project root for details.
+
 -- Default configuration for context-highlight plugin
 
 local M = {}
@@ -17,14 +20,9 @@ M.defaults = {
   lsp_fallback_to_treesitter = true,  -- Fallback to TreeSitter if LSP unavailable
   differentiate_read_write = true,  -- Use different colors for read vs write
 
-  -- What minimal elements to highlight within active scope
-  minimal_highlights = {
-    keywords = true,     -- if, for, return, function, etc.
-    operators = true,    -- +, -, =, ==, etc.
-    strings = true,      -- String literals
-    numbers = false,     -- Number literals
-    comments = false,    -- Comments
-  },
+  -- Note: Syntax highlighting in active scope uses your colorscheme's natural colors
+  -- The plugin no longer overrides TreeSitter highlights to ensure compatibility
+  -- with any colorscheme (light or dark). The dimming effect provides sufficient contrast.
 }
 
 return M
